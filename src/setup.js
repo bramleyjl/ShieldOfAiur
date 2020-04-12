@@ -34,9 +34,17 @@ function buildRoom() {
         minerals: currentRoom.find(FIND_MINERALS)
     };
     currentRoom.workforce = {
-        roster: []
+        roster: {
+            energyHarvester: [],
+            transporter: [],
+        }
     };
     for (var creepKey in Game.creeps) {
-      currentRoom.workforce.roster.push(creepKey);
+      var role = Game.creeps[creepKey].memory.role;
+      if (currentRoom.workforce.roster[role] === undefined) {
+        currentRoom.workforce.roster[role] = [creepKey];
+      } else {
+        currentRoom.workforce.roster[role].push(creepKey);        
+      }
     }
 }

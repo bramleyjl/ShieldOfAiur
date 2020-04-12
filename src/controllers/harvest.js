@@ -8,7 +8,10 @@ module.exports = {
 }
 
 function dispatchResourceOrders(room, resourceType) {
-  room.workforce.roster.forEach(creepId => {
+  room.workforce.roster.energyHarvester.forEach(creepId => {
     Game.creeps[creepId].farm(room.resources[resourceType]);
-  })
+  });
+  room.workforce.roster.transporter.forEach(creepId => {
+    Game.creeps[creepId].farm(room.resources[resourceType]);
+  });
 }

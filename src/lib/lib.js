@@ -1,6 +1,6 @@
 module.exports = {
-  generateId: function() {
-    return Game.time + '_' + Math.floor(Math.random() * 100000);
+  generateId: function(role = '') {
+    return role + Game.time + '_' + Math.floor(Math.random() * 1000000);
   },
 
   //works with just one room, need to add multi-room functionality

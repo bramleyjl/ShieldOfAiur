@@ -1,12 +1,17 @@
 var lib = require('lib_lib');
+var creepLib = require('lib_creep_lib');
 
 module.exports = {
   extendStructureSpawn: function() {
-    StructureSpawn.prototype.buildCreep = function() {
-      var abilities = [WORK, CARRY, MOVE];
-      var creepId = lib.generateId();
-      var traits = {};
-      this.spawnCreep([WORK, CARRY, MOVE], creepId, traits);
+    StructureSpawn.prototype.buildCreep = function(role) {
+      var abilities = creepLib.getCreepRoleAbilities(role);
+      var creepId = lib.generateId(role);
+      var traits = {
+        memory: {
+          role: role
+        }
+      };
+      this.spawnCreep(abilities, creepId, traits);
     }
   }
 }
