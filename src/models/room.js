@@ -1,13 +1,16 @@
 module.exports = {
   extendRoom: function() {
     Object.defineProperty(Room, 'workforce', {
-      get() { return this.workforce; },
-      set(newValue) { this.workforce = newValue; },
+      get() { return this._workforce; },
+      set(newValue) { this._workforce = newValue; },
       enumerable: false,
       configurable: true
     });
-    Room.prototype.calculateEnergyPotential = function() {
-      return (this.energyAvailable > this.energyCapacityAvailable) ? this.energyCapacityAvailable : this.energyAvailable;
-    }
+    Object.defineProperty(Room, 'resources', {
+      get() { return this._resources; },
+      set(newValue) { this._resources = newValue; },
+      enumerable: false,
+      configurable: true,
+    });
   }
 }
