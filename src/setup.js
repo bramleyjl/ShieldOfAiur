@@ -1,6 +1,9 @@
 var lib = require('lib_lib');
+var game = require('models_game');
 var room = require('models_room');
 var creep = require('models_creep');
+var structure = require('models_structure');
+var structureSpawn = require('models_structureSpawn');
 
 var setup = {
   runConstructors: function() {
@@ -12,8 +15,11 @@ var setup = {
 module.exports = setup;
 
 function extendClasses() {
+    game.extendGame();
     room.extendRoom();
     creep.extendCreep();
+    structure.extendStructure();
+    structureSpawn.extendStructureSpawn();
 }
 
 function buildWorkforce() {
