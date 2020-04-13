@@ -14,7 +14,7 @@ module.exports = {
 }
 
 function chooseRoleType(currentRoom, roster) {
-  //build roster count for comparisons
+  //build roster counts for comparisons
   var [energyHarvesters, transporters, other] = [0, 0, 0];
   for (let role in roster) {
     switch (role) {
@@ -30,6 +30,10 @@ function chooseRoleType(currentRoom, roster) {
     }
   }
   if ((energyHarvesters + transporters + other) < 10) {
-    return (energyHarvesters <= transporters) ? 'energyHarvester' : 'transporter';
+    if ((energyHarvesters / transporters) > 2) {
+      return 'transporter';
+    } else {
+      return 'energyHarvester';
+    }
   }
 }
