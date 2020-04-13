@@ -35,10 +35,13 @@ function buildRoom() {
     };
     currentRoom.workforce = {
         roster: {
+            basic: [],
             energyHarvester: [],
             transporter: [],
-        }
+        },
+        creepCount: 0
     };
+    let creepCount = 0;
     for (var creepKey in Game.creeps) {
       var role = Game.creeps[creepKey].memory.role;
       if (currentRoom.workforce.roster[role] === undefined) {
@@ -46,5 +49,7 @@ function buildRoom() {
       } else {
         currentRoom.workforce.roster[role].push(creepKey);        
       }
+      creepCount += 1;
     }
+    currentRoom.workforce.creepCount = creepCount;
 }

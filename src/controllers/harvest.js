@@ -8,6 +8,9 @@ module.exports = {
 }
 
 function dispatchResourceOrders(room) {
+  room.workforce.roster.basic.forEach(creepId => {
+    Game.creeps[creepId].farmAndTransport(room.resources['energy']);
+  });
   room.workforce.roster.energyHarvester.forEach(creepId => {
     Game.creeps[creepId].farm(room.resources['energy']);
   });

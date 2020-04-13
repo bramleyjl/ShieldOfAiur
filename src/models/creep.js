@@ -7,6 +7,13 @@ module.exports = {
 }
 
 function addMethods() {
+  Creep.prototype.farmAndTransport = function(resourceNodes) {
+    if (this.store.getFreeCapacity() > 0) {
+      this.farm(resourceNodes);
+    } else {
+      this.transport();
+    } 
+  };
   Creep.prototype.farm = function(resourceNodes) {
     var target = this.getMemoryObject('target');
     if (!target) {
@@ -42,7 +49,7 @@ function addMethods() {
         this.memory.target = undefined;
       }
   };
-  Creep.prototype.transport = function(resourceNodes) {
+  Creep.prototype.transport = function(resourceNodes = '') {
     var target = this.getMemoryObject('target');
     if (this.store.getFreeCapacity() > 0) {
       if (!target || this.memory.action != 'transportCollect') {

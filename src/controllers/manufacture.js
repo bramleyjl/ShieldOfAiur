@@ -5,19 +5,22 @@ module.exports = {
   run: function() {
     var currentRoom = lib.getCurrentRoom();
     var roster = currentRoom.workforce.roster;
-    var role = chooseRoleType(currentRoom, roster);
+    var spawn = lib.getSpawn();
+    var role = chooseRoleType(currentRoom, roster, spawn);
     if (role) {
-      var spawn = lib.getSpawn();
       spawn.buildCreep(role);
     }
   }
 }
 
-function chooseRoleType(currentRoom, roster) {
+function chooseRoleType(currentRoom, roster, spawn) {
   //build roster counts for comparisons
-  var [energyHarvesters, transporters, other] = [0, 0, 0];
+  var [energyHarvesters, transporters, basics, others] = [0, 0, 0, 0];
   for (let role in roster) {
     switch (role) {
+      case 'basic':
+        basics = (roster[role]) ? roster[role].length : 0;
+        break;
       case 'energyHarvester':
         energyHarvesters = (roster[role]) ? roster[role].length : 0;
         break;
@@ -25,15 +28,13 @@ function chooseRoleType(currentRoom, roster) {
         transporters = (roster[role]) ? roster[role].length : 0;
         break;
       default:
-        other = (roster[role]) ? roster[role].length : 0;
+        others = (roster[role]) ? roster[role].length : 0;
         break;
     }
   }
-  if ((energyHarvesters + transporters + other) < 10) {
-    if ((energyHarvesters / transporters) > 2) {
-      return 'transporter';
-    } else {
-      return 'energyHarvester';
-    }
+  if (energyHarvesters > transporters) {
+    return 'transporter';
+  } else {
+    return 'energyHarvester';
   }
 }
