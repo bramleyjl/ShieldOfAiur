@@ -39,7 +39,7 @@ function buildRoom() {
             claimer: [],
             energyHarvester: [],
             transporter: [],
-            upgrader: [],
+            builder: [],
         },
         creepCount: 0
     };
