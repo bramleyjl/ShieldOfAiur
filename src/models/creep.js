@@ -36,6 +36,8 @@ function addMethods() {
         case 'transfer':
           var attempt = this.transfer(target, actionArgs.resource);
           break;
+        case 'upgradeController':
+          var attempt = this.upgradeController(target);
         default:
           var attempt = ERR_NOT_IN_RANGE;
           break;
@@ -48,6 +50,7 @@ function addMethods() {
       } else {
         this.memory.target = undefined;
       }
+      return attempt;
   };
   Creep.prototype.transport = function(resourceNodes = '') {
     var target = this.getMemoryObject('target');
@@ -69,6 +72,23 @@ function addMethods() {
       if (target) {
         this.goDo(target, 'transfer', {resource: RESOURCE_ENERGY}, 'transportDeposit', 'returnPath');
       }
+    }
+  };
+  Creep.prototype.upgrade = function(controller, resourceNodes) {
+    if (controller.isActive()) {
+      if (this.store.getUsedCapacity() === 0) {
+        this.farm(resourceNodes);
+      } else if (this.store.getFreeCapacity() === 0) {
+        this.goDo(controller, 'upgradeController', {}, 'upgrade');
+      } else {
+        if (this.memory.action === 'harvest') {
+          this.farm(resourceNodes);
+        } else {
+          this.goDo(controller, 'upgradeController', {}, 'upgrade');          
+        }
+      }
+    } else {
+      this.farmAndTransport(resourceNodes);
     }
   };
 }

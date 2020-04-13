@@ -36,8 +36,10 @@ function buildRoom() {
     currentRoom.workforce = {
         roster: {
             basic: [],
+            claimer: [],
             energyHarvester: [],
             transporter: [],
+            upgrader: [],
         },
         creepCount: 0
     };

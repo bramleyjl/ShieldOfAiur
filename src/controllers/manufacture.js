@@ -15,21 +15,32 @@ module.exports = {
 
 function chooseRoleType(currentRoom, roster, spawn) {
   //build roster counts for comparisons
-  var [energyHarvesters, transporters, basics, others] = [0, 0, 0, 0];
+  var [claimers, energyHarvesters, transporters, basics, upgraders, others] = [0, 0, 0, 0, 0, 0];
   for (let role in roster) {
     switch (role) {
       case 'basic':
         basics = (roster[role]) ? roster[role].length : 0;
         break;
+      case 'claimer':
+        claimers = (roster[role]) ? roster[role].length : 0;
+        break
       case 'energyHarvester':
         energyHarvesters = (roster[role]) ? roster[role].length : 0;
         break;
       case 'transporter':
         transporters = (roster[role]) ? roster[role].length : 0;
         break;
+      case 'upgrader':
+        upgraders = (roster[role]) ? roster[role].length : 0;
+        break;
       default:
         others = (roster[role]) ? roster[role].length : 0;
         break;
+    }
+  }
+  if (currentRoom.workforce.creepCount > 3) {
+    if (upgraders === 0) {
+      return 'upgrader';
     }
   }
   if (energyHarvesters > transporters) {

@@ -6,11 +6,17 @@ module.exports = {
         abilities = [WORK, WORK, MOVE];
         break;
       case 'transporter':
-        abilities = [CARRY, CARRY, CARRY, MOVE];
+        abilities = [CARRY, CARRY, CARRY, MOVE, MOVE];
+        break;
+      case 'claimer':
+        abilities = [CLAIM, CARRY, WORK, MOVE];
+        break;
+      case 'upgrader':
+        abilities = [WORK, CARRY, CARRY, MOVE];
         break;
       case 'basic':
       default:
-        abilities = [WORK, CARRY, MOVE];
+        abilities = [CARRY, WORK, MOVE];
         break;
     }
     return abilities;
