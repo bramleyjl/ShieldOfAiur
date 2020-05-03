@@ -3,7 +3,7 @@ module.exports = {
     var abilities = [];
     switch (role) {
       case 'builder':
-        abilities = [WORK, CARRY, CARRY, MOVE];
+        abilities = [WORK, CARRY, CARRY, MOVE, MOVE];
         break;
       case 'energyHarvester':
         abilities = [WORK, WORK, MOVE];

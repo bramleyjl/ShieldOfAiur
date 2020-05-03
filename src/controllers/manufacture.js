@@ -38,14 +38,15 @@ function chooseRoleType(currentRoom, roster, spawn) {
         break;
     }
   }
-  if (currentRoom.workforce.creepCount > 3) {
-    if (builders === 0) {
-      return 'builder';
+  if (currentRoom.workforce.creepCount < 2) {
+    return 'basic';
+  }
+  if (currentRoom.workforce.energyTeamCount < (currentRoom.workforce.creepCount / 3)) {
+    if (energyHarvesters > transporters) {
+      return 'transporter';
+    } else {
+      return 'energyHarvester';
     }
   }
-  if (energyHarvesters > transporters) {
-    return 'transporter';
-  } else {
-    return 'energyHarvester';
-  }
+  return 'builder';
 }

@@ -53,5 +53,6 @@ function buildRoom() {
       }
       creepCount += 1;
     }
+    currentRoom.workforce.energyTeamCount = currentRoom.workforce.roster.energyHarvester.length + currentRoom.workforce.roster.transporter.length;
     currentRoom.workforce.creepCount = creepCount;
 }

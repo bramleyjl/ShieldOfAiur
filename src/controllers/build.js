@@ -5,20 +5,20 @@ module.exports = {
     var currentRoom = lib.getCurrentRoom();
     var roomLevel = currentRoom.controller.level;
     calculateUpgradePriorities(currentRoom, roomLevel);
-    calculateBuildPriorities(currentRoom, roomLevel);
+    calculateConstructPriorities(currentRoom, roomLevel);
   }
 }
 
-function calculateBuildPriorities(room, roomLevel) {
+function calculateConstructPriorities(room, roomLevel) {
   switch (roomLevel) {
     case 0:
-      dispatchBuildOrders(room);
+      // dispatchConstructOrders(room);
       break;
     case 1:
-      dispatchBuildOrders(room);
+      // dispatchConstructOrders(room);
       break;
     default:
-      dispatchBuildOrders(room);
+      // dispatchConstructOrders(room);
       break;
   }
 }
@@ -26,25 +26,30 @@ function calculateBuildPriorities(room, roomLevel) {
 function calculateUpgradePriorities(room, roomLevel) {
   switch (roomLevel) {
     case 0:
-      dispatchUpgradeOrders(room);
-      break;
     case 1:
-      dispatchUpgradeOrders(room);
+      //arbitrary condition of "enough resource gathering to warrant upgrading"
+      if (room.workforce.energyTeamCount >= room.resources.energy.length) {
+        dispatchUpgradeOrders(room);
+      }
       break;
     default:
-      dispatchUpgradeOrders(room);
+      //dispatchUpgradeOrders(room);
       break;
   }
 }
 
-function dispatchBuildOrders(room) {
-  room.workforce.roster.builder.forEach(creepId => {
-    //build text goes here
+function dispatchConstructOrders(room) {
+  var roster = room.workforce.roster;
+  var buildCreeps = roster.builder ? roster.builder : roster.basic;
+  buildCreeps.forEach(creepId => {
+    Game.creeps[creepId].construct(room.controller, room.resources['energy']);
   });
 }
 
 function dispatchUpgradeOrders(room) {
-  room.workforce.roster.builder.forEach(creepId => {
+  var roster = room.workforce.roster;
+  var upgradeCreeps = roster.builder ? roster.builder : roster.basic;
+  upgradeCreeps.forEach(creepId => {
     Game.creeps[creepId].upgrade(room.controller, room.resources['energy']);
   });
 }

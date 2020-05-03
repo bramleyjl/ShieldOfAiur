@@ -7,6 +7,9 @@ module.exports = {
 }
 
 function addMethods() {
+  Creep.prototype.construct = function(target) {
+
+  };
   Creep.prototype.farm = function(resourceNodes) {
     var target = this.getMemoryObject('target');
     if (!target) {
