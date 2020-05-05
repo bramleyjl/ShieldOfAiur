@@ -29,6 +29,10 @@ function addMethods() {
     }
   };
   Creep.prototype.goDo = function(target, command, action, args = { path: 'movePath' }) {
+      if (!target) {
+        console.log(`ERROR: Null target for creep ${this.name} attempting ${command}: ${action}`);
+        return;
+      }
       switch (command) {
         case 'harvest':
           var attempt = this.harvest(target);

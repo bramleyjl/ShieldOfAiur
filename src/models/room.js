@@ -17,7 +17,7 @@ module.exports = {
 }
 
 function addMethods() {
-  Room.prototype.reinforceRosterActionGroup = function(role, action, count) {
+  Room.prototype.getRosterActionGroup = function(role, action) {
     var actionGroup = this.workforce.roster[role].filter(creepKey => {
       var creep = Game.creeps[creepKey];
       if (creep.memory.action === action) {
@@ -26,4 +26,30 @@ function addMethods() {
     });
     return actionGroup;
   };
+  Room.prototype.reinforceRosterActionGroup = function(role, action, count, conscriptAction) {
+    //come up with better method of determining which farming builder should be assigned to which task
+    var actionGroup = this.getRosterActionGroup(role, action);
+    var conscriptGroup = this.getRosterActionGroup(role, conscriptAction)
+    var creepDiff = count - actionGroup.length;
+    if (creepDiff > 0 && conscriptGroup.length > 0) {
+      var conscripts = selectBestConscript(conscriptGroup, conscriptAction, creepDiff);
+      return actionGroup.concat(conscripts);
+    }
+    return actionGroup;
+  };
+}
+
+function selectBestConscript(group, action, count) {
+  if (count >= group.length) {
+    return group;
+  }
+  var sortedGroup = group.sort((a,b) => {
+    switch (action) {
+      case 'harvest':
+      default:
+        return Game.creeps[a].store.getFreeCapacity() < Game.creeps[b].store.getFreeCapacity();
+        break;
+    }
+  });
+  return sortedGroup.slice(0, count);
 }

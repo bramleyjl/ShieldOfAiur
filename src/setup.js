@@ -41,6 +41,13 @@ function buildRoom() {
             transporter: [],
             builder: [],
         },
+        dispatched: {
+            basic: [],
+            claimer: [],
+            energyHarvester: [],
+            transporter: [],
+            builder: [],
+        },
         actionCount: {},
         creepCount: 0
     };

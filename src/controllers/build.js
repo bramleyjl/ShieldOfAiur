@@ -1,46 +1,67 @@
 var lib = require('lib_lib');
+var workforceLib = require('lib_workforce_lib');
 
 module.exports = {
   run: function() {
     var currentRoom = lib.getCurrentRoom();
     var roomLevel = currentRoom.controller.level;
-    calculateConstructPriorities(currentRoom, roomLevel);
+    calculatePriorities(currentRoom, roomLevel);
   }
 }
 
-function calculateConstructPriorities(room, roomLevel) {
-  var roster = room.workforce.roster;
-        var upgradeCreeps = room.reinforceRosterActionGroup('builder', 'harvest', 2);
-        // console.log(upgradeCreeps);
+function calculatePriorities(room, roomLevel) {
+  var builders = room.workforce.roster.builder;
+  var constructionTargets = calculateConstructionTargets(room, roomLevel);
   switch (roomLevel) {
     case 0:
     case 1:
       //arbitrary condition of "enough resource gathering to warrant upgrading"
       if (room.workforce.energyTeamCount >= (room.resources.energy.length / 2)) {
-        dispatchUpgradeOrders(room, roster.builder);
+        dispatchUpgradeOrders(builders, room, 'builder');
+      } else {
+        dispatchFarmOrders(builders, room, 'builder');
       }
       break;
     case 2:
       if (room.workforce.energyTeamCount >= room.resources.energy.length) {
-        var upgradeCreeps = room.reinforceRosterActionGroup('builder', 'upgrade', 2);
-        // dispatchUpgradeOrders(room, roster);
+        var upgradeTeam = room.reinforceRosterActionGroup('builder', 'upgrade', 2, 'harvest');
+        dispatchUpgradeOrders(upgradeTeam, room, 'builder');
+        //replace with construction logic
+        dispatchFarmOrders(room.workforce.roster.builder, room, 'builder');
+        //dispatchConstructOrders(room.workforce.roster.builder, constructionTargets, room, 'builder');
+      } else {
+        dispatchFarmOrders(builders, room, 'builder');
       }
       break;
     default:
-      // dispatchConstructOrders(room);
+      builders.forEach(creepId => {
+        Game.creeps[creepId].farmAndTransport(room.resources['energy']);
+      });
       break;
   }
 }
 
-function dispatchConstructOrders(room, roster) {
-  var buildCreeps = roster.builder ? roster.builder : roster.basic;
-  roster.forEach(creepId => {
-    Game.creeps[creepId].construct(room.controller, room.resources['energy']);
-  });
+function calculateConstructionTargets(room, roomLevel) {
+
 }
 
-function dispatchUpgradeOrders(room, roster) {
-  roster.forEach(creepId => {
+function dispatchConstructOrders(team, targets, room, roster) {
+  team.forEach(creepId => {
+    Game.creeps[creepId].construct();
+  });
+  workforceLib.removeFromRoster(room, roster, team);
+}
+
+function dispatchFarmOrders(team, room, roster) {
+  team.forEach(creepId => {
+    Game.creeps[creepId].farmAndTransport(room.resources['energy']);
+  });
+  workforceLib.removeFromRoster(room, roster, team);
+}
+
+function dispatchUpgradeOrders(team, room, roster) {
+  team.forEach(creepId => {
     Game.creeps[creepId].upgrade(room.controller, room.resources['energy']);
   });
+  workforceLib.removeFromRoster(room, roster, team);
 }
