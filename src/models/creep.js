@@ -7,6 +7,9 @@ module.exports = {
 }
 
 function addMethods() {
+  Creep.prototype.construct = function(target) {
+
+  };
   Creep.prototype.farm = function(resourceNodes) {
     var target = this.getMemoryObject('target');
     if (!target) {
@@ -26,6 +29,10 @@ function addMethods() {
     }
   };
   Creep.prototype.goDo = function(target, command, action, args = { path: 'movePath' }) {
+      if (!target) {
+        console.log(`ERROR: Null target for creep ${this.name} attempting ${command}: ${action}`);
+        return;
+      }
       switch (command) {
         case 'harvest':
           var attempt = this.harvest(target);
@@ -42,7 +49,7 @@ function addMethods() {
           var attempt = ERR_NOT_IN_RANGE;
           break;
       }
-      target.freeSpaces -= 1;
+      target.freeSpaces = target.freeSpaces - 1;
       this.memory.action = action;
       if (attempt == ERR_NOT_IN_RANGE) {
         this.moveTo(target, {visualizePathStyle: {stroke: config.styling[args.path].stroke}});

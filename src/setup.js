@@ -41,17 +41,33 @@ function buildRoom() {
             transporter: [],
             builder: [],
         },
+        dispatched: {
+            basic: [],
+            claimer: [],
+            energyHarvester: [],
+            transporter: [],
+            builder: [],
+        },
+        actionCount: {},
         creepCount: 0
     };
     let creepCount = 0;
     for (var creepKey in Game.creeps) {
-      var role = Game.creeps[creepKey].memory.role;
+      var creep = Game.creeps[creepKey];
+      var role = creep.memory.role;
       if (currentRoom.workforce.roster[role] === undefined) {
         currentRoom.workforce.roster[role] = [creepKey];
       } else {
         currentRoom.workforce.roster[role].push(creepKey);        
       }
+      var action = creep.memory.action;
+      if (currentRoom.workforce.actionCount[action]) {
+        currentRoom.workforce.actionCount[action] += 1;
+      } else {
+        currentRoom.workforce.actionCount[action] = 1;
+      }
       creepCount += 1;
     }
+    currentRoom.workforce.energyTeamCount = currentRoom.workforce.roster.energyHarvester.length + currentRoom.workforce.roster.transporter.length;
     currentRoom.workforce.creepCount = creepCount;
 }

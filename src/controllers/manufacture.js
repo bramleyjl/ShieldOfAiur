@@ -3,49 +3,32 @@ var creepLib = require('lib_creep_lib');
 
 module.exports = {
   run: function() {
-    var currentRoom = lib.getCurrentRoom();
-    var roster = currentRoom.workforce.roster;
     var spawn = lib.getSpawn();
-    var role = chooseRoleType(currentRoom, roster, spawn);
-    if (role) {
+    var room = lib.getCurrentRoom();
+    var role = chooseRoleType(room, spawn);
+    var canBuild = spawn.canBuildCreep(role);
+    if (canBuild === 0) {
       spawn.buildCreep(role);
     }
   }
 }
 
-function chooseRoleType(currentRoom, roster, spawn) {
-  //build roster counts for comparisons
-  var [claimers, energyHarvesters, transporters, basics, builders, others] = [0, 0, 0, 0, 0, 0];
-  for (let role in roster) {
-    switch (role) {
-      case 'basic':
-        basics = (roster[role]) ? roster[role].length : 0;
-        break;
-      case 'claimer':
-        claimers = (roster[role]) ? roster[role].length : 0;
-        break
-      case 'energyHarvester':
-        energyHarvesters = (roster[role]) ? roster[role].length : 0;
-        break;
-      case 'transporter':
-        transporters = (roster[role]) ? roster[role].length : 0;
-        break;
-      case 'builder':
-        builders = (roster[role]) ? roster[role].length : 0;
-        break;
-      default:
-        others = (roster[role]) ? roster[role].length : 0;
-        break;
+function chooseRoleType(room, spawn) {
+  var roster = room.workforce.roster;
+  var creepCount = room.workforce.creepCount;
+  //sets better roster variables
+  var basics = (roster.basic) ? roster.basic.length : 0;
+  var claimers = (roster.claimer) ? roster.claimer.length : 0;
+  var energyHarvesters = (roster.energyHarvester) ? roster.energyHarvester.length : 0;
+  var transporters = (roster.transporter) ? roster.transporter.length : 0;
+  var builders = (roster.builder) ? roster.builder.length : 0;
+
+  if (room.workforce.energyTeamCount < (creepCount / 2)) {
+    if (energyHarvesters > transporters) {
+      return 'transporter';
+    } else {
+      return 'energyHarvester';
     }
   }
-  if (currentRoom.workforce.creepCount > 3) {
-    if (builders === 0) {
-      return 'builder';
-    }
-  }
-  if (energyHarvesters > transporters) {
-    return 'transporter';
-  } else {
-    return 'energyHarvester';
-  }
+  return 'builder';
 }

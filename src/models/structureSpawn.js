@@ -3,15 +3,20 @@ var creepLib = require('lib_creep_lib');
 
 module.exports = {
   extendStructureSpawn: function() {
-    StructureSpawn.prototype.buildCreep = function(role) {
-      var abilities = creepLib.getCreepRoleAbilities(role);
+    StructureSpawn.prototype.buildCreep = function(role, traits = {}) {
+      var parts = creepLib.getCreepRoleParts(role);
       var creepId = lib.generateId(role);
-      var traits = {
-        memory: {
+      if (traits.memory === undefined || lib.isEmpty(traits.memory)) {
+        traits.memory = {
           role: role
-        }
-      };
-      this.spawnCreep(abilities, creepId, traits);
-    }
+        };
+      } else {
+        traits.memory.role = role;
+      }
+      return this.spawnCreep(parts, creepId, traits);
+    };
+    StructureSpawn.prototype.canBuildCreep = function(role) {
+      return this.buildCreep(role, { dryRun: true });
+    };
   }
 }

@@ -1,50 +1,67 @@
 var lib = require('lib_lib');
+var workforceLib = require('lib_workforce_lib');
 
 module.exports = {
   run: function() {
     var currentRoom = lib.getCurrentRoom();
     var roomLevel = currentRoom.controller.level;
-    calculateUpgradePriorities(currentRoom, roomLevel);
-    calculateBuildPriorities(currentRoom, roomLevel);
+    calculatePriorities(currentRoom, roomLevel);
   }
 }
 
-function calculateBuildPriorities(room, roomLevel) {
+function calculatePriorities(room, roomLevel) {
+  var builders = room.workforce.roster.builder;
+  var constructionTargets = calculateConstructionTargets(room, roomLevel);
   switch (roomLevel) {
     case 0:
-      dispatchBuildOrders(room);
-      break;
     case 1:
-      dispatchBuildOrders(room);
+      //arbitrary condition of "enough resource gathering to warrant upgrading"
+      if (room.workforce.energyTeamCount >= (room.resources.energy.length / 2)) {
+        dispatchUpgradeOrders(builders, room, 'builder');
+      } else {
+        dispatchFarmOrders(builders, room, 'builder');
+      }
+      break;
+    case 2:
+      if (room.workforce.energyTeamCount >= room.resources.energy.length) {
+        var upgradeTeam = room.reinforceRosterActionGroup('builder', 'upgrade', 2, 'harvest');
+        dispatchUpgradeOrders(upgradeTeam, room, 'builder');
+        //replace with construction logic
+        dispatchFarmOrders(room.workforce.roster.builder, room, 'builder');
+        //dispatchConstructOrders(room.workforce.roster.builder, constructionTargets, room, 'builder');
+      } else {
+        dispatchFarmOrders(builders, room, 'builder');
+      }
       break;
     default:
-      dispatchBuildOrders(room);
+      builders.forEach(creepId => {
+        Game.creeps[creepId].farmAndTransport(room.resources['energy']);
+      });
       break;
   }
 }
 
-function calculateUpgradePriorities(room, roomLevel) {
-  switch (roomLevel) {
-    case 0:
-      dispatchUpgradeOrders(room);
-      break;
-    case 1:
-      dispatchUpgradeOrders(room);
-      break;
-    default:
-      dispatchUpgradeOrders(room);
-      break;
-  }
+function calculateConstructionTargets(room, roomLevel) {
+
 }
 
-function dispatchBuildOrders(room) {
-  room.workforce.roster.builder.forEach(creepId => {
-    //build text goes here
+function dispatchConstructOrders(team, targets, room, roster) {
+  team.forEach(creepId => {
+    Game.creeps[creepId].construct();
   });
+  workforceLib.removeFromRoster(room, roster, team);
 }
 
-function dispatchUpgradeOrders(room) {
-  room.workforce.roster.builder.forEach(creepId => {
+function dispatchFarmOrders(team, room, roster) {
+  team.forEach(creepId => {
+    Game.creeps[creepId].farmAndTransport(room.resources['energy']);
+  });
+  workforceLib.removeFromRoster(room, roster, team);
+}
+
+function dispatchUpgradeOrders(team, room, roster) {
+  team.forEach(creepId => {
     Game.creeps[creepId].upgrade(room.controller, room.resources['energy']);
   });
+  workforceLib.removeFromRoster(room, roster, team);
 }
