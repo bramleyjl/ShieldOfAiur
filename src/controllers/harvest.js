@@ -8,9 +8,11 @@ module.exports = {
 }
 
 function dispatchResourceOrders(room) {
-  room.workforce.roster.basic.forEach(creepId => {
-    Game.creeps[creepId].farmAndTransport(room.resources['energy']);
-  });
+  if (room.workforce.energyTeamCount <= room.resources.energy.length) {
+    room.workforce.roster.builder.forEach(creepId => {
+        Game.creeps[creepId].farmAndTransport(room.resources['energy']);
+    });
+  }
   room.workforce.roster.energyHarvester.forEach(creepId => {
     Game.creeps[creepId].farm(room.resources['energy']);
   });

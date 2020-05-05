@@ -45,7 +45,7 @@ function addMethods() {
           var attempt = ERR_NOT_IN_RANGE;
           break;
       }
-      target.freeSpaces -= 1;
+      target.freeSpaces = target.freeSpaces - 1;
       this.memory.action = action;
       if (attempt == ERR_NOT_IN_RANGE) {
         this.moveTo(target, {visualizePathStyle: {stroke: config.styling[args.path].stroke}});
