@@ -19,7 +19,7 @@ function addMethods() {
         }
       });
     }
-    this.goDo(target, 'harvest', 'harvest');
+    return this.goDo(target, 'harvest', 'harvest');
   };
   Creep.prototype.farmAndTransport = function(resourceNodes) {
     if (this.store.getFreeCapacity() > 0) {
@@ -51,17 +51,17 @@ function addMethods() {
       }
       target.freeSpaces = target.freeSpaces - 1;
       this.memory.action = action;
-      if (attempt == ERR_NOT_IN_RANGE) {
+      if (attempt === ERR_NOT_IN_RANGE) {
         this.moveTo(target, {visualizePathStyle: {stroke: config.styling[args.path].stroke}});
         this.memory.target = target.id;
-      } else {
+      } else if (attempt === OK) {
         this.memory.target = undefined;
       }
       return attempt;
   };
   Creep.prototype.transport = function(resourceNodes = '', resource = RESOURCE_ENERGY) {
     var target = this.getMemoryObject('target');
-    if (this.store.getFreeCapacity() > 0) {
+    if (this.store.getFreeCapacity() > 0 && this.memory.action !== 'waitDeposit') {
       if (!target || this.memory.action != 'transportCollect') {
         var target = this.pos.findClosestByPath(resourceNodes);
       }
@@ -78,7 +78,12 @@ function addMethods() {
         target = this.pos.findClosestByPath(targets);
       }
       if (target) {
-        this.goDo(target, 'transfer', 'transportDeposit', { actionArgs: {resource: resource}, path: 'returnPath' });
+        var depositAttempt = this.goDo(target, 'transfer', 'transportDeposit', { actionArgs: {resource: resource}, path: 'returnPath' });
+        if (depositAttempt === ERR_FULL) {
+          console.log('WAITING TO FINISH DEPOSIT');
+          console.log(this.store);
+          this.memory.action = 'waitDeposit';
+        }
       }
     }
   };
@@ -90,9 +95,9 @@ function addMethods() {
         this.goDo(controller, 'upgradeController', 'upgrade');
       } else {
         if (this.memory.action === 'harvest') {
-          this.farm(resourceNodes);
+          var attempt = this.farm(resourceNodes);
         } else {
-          this.goDo(controller, 'upgradeController', 'upgrade');          
+          var attempt = this.goDo(controller, 'upgradeController', 'upgrade');          
         }
       }
     } else {

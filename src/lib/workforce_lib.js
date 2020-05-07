@@ -5,5 +5,10 @@ module.exports = {
     });
     room.workforce.roster[roster] = (purgedRoster.length > 0) ? purgedRoster : [];
     room.workforce.dispatched[roster] = room.workforce.dispatched[roster].concat(creeps);
+  },
+  getRoleCount: function(room, role) {
+    var roster = (room.workforce.roster[role]) ? room.workforce.roster[role].length : 0;
+    var dispatched = (room.workforce.dispatched[role]) ? room.workforce.dispatched[role].length : 0;
+    return roster + dispatched;
   }
 }
