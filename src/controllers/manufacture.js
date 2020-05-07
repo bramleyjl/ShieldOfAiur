@@ -1,5 +1,4 @@
 var lib = require('lib_lib');
-var creepLib = require('lib_creep_lib');
 
 module.exports = {
   run: function() {
@@ -19,15 +18,15 @@ function chooseRoleType(room, spawn) {
   //sets better roster variables
   var basics = (roster.basic) ? roster.basic.length : 0;
   var claimers = (roster.claimer) ? roster.claimer.length : 0;
-  var energyHarvesters = (roster.energyHarvester) ? roster.energyHarvester.length : 0;
+  var harvesters = (roster.harvester) ? roster.harvester.length : 0;
   var transporters = (roster.transporter) ? roster.transporter.length : 0;
   var builders = (roster.builder) ? roster.builder.length : 0;
 
   if (room.workforce.energyTeamCount < (creepCount / 2)) {
-    if (energyHarvesters > transporters) {
+    if (harvesters > transporters) {
       return 'transporter';
     } else {
-      return 'energyHarvester';
+      return 'harvester';
     }
   }
   return 'builder';

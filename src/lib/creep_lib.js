@@ -5,7 +5,7 @@ module.exports = {
       case 'builder':
         parts = [WORK, CARRY, CARRY, MOVE, MOVE];
         break;
-      case 'energyHarvester':
+      case 'harvester':
         parts = [WORK, WORK, MOVE];
         break;
       case 'transporter':

@@ -9,8 +9,8 @@ module.exports = {
 }
 
 function calculatePriorities(room) {
-  var harvesters = room.workforce.roster.energyHarvester;
-  dispatchHarvestOrders(harvesters, room, 'energyHarvester');
+  var harvesters = room.workforce.roster.harvester;
+  dispatchHarvestOrders(harvesters, room, 'harvester');
   var transporters = room.workforce.roster.transporter;
   dispatchHarvestOrders(transporters, room, 'transporter');
 }

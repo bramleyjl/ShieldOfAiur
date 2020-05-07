@@ -37,14 +37,14 @@ function buildRoom() {
         roster: {
             basic: [],
             claimer: [],
-            energyHarvester: [],
+            harvester: [],
             transporter: [],
             builder: [],
         },
         dispatched: {
             basic: [],
             claimer: [],
-            energyHarvester: [],
+            harvester: [],
             transporter: [],
             builder: [],
         },
@@ -68,6 +68,6 @@ function buildRoom() {
       }
       creepCount += 1;
     }
-    currentRoom.workforce.energyTeamCount = currentRoom.workforce.roster.energyHarvester.length + currentRoom.workforce.roster.transporter.length;
+    currentRoom.workforce.energyTeamCount = currentRoom.workforce.roster.harvester.length + currentRoom.workforce.roster.transporter.length;
     currentRoom.workforce.creepCount = creepCount;
 }
