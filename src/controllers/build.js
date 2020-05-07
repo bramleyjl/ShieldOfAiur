@@ -17,7 +17,9 @@ function calculatePriorities(room, roomLevel) {
     case 1:
       //arbitrary condition of "enough resource gathering to warrant upgrading"
       if (room.workforce.energyTeamCount >= (room.resources.energy.length / 2)) {
-        dispatchUpgradeOrders(builders, room, 'builder');
+        var upgradeTeam = room.reinforceRosterActionGroup('builder', 'upgrade', 2, 'harvest');
+        dispatchUpgradeOrders(upgradeTeam, room, 'builder');
+        dispatchFarmOrders(room.workforce.roster.builder, room, 'builder');
       } else {
         dispatchFarmOrders(builders, room, 'builder');
       }
@@ -61,7 +63,17 @@ function dispatchFarmOrders(team, room, roster) {
 
 function dispatchUpgradeOrders(team, room, roster) {
   team.forEach(creepId => {
-    Game.creeps[creepId].upgrade(room.controller, room.resources['energy']);
+    var creep = Game.creeps[creepId];
+    if (creep.store.getFreeCapacity() === 0 || creep.memory.action === 'upgrade') {
+      var enoughWork = room.controller.checkIncomingWork();
+      if (!enoughWork) {
+        creep.upgrade(room.controller, room.resources['energy']);
+        room.controller.incomingWork += creep.store.getUsedCapacity(RESOURCE_ENERGY);
+      }
+    }
+    if (!creep.dispatched) {
+      creep.farmAndTransport(room.resources['energy']);
+    }
   });
   workforceLib.removeFromRoster(room, roster, team);
 }

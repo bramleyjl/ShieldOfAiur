@@ -2,6 +2,12 @@ var config = require('config');
 
 module.exports = {
   extendCreep: function() {
+    Object.defineProperty(Creep.prototype, 'dispatched', {
+      get: function() { return this._dispatched },
+      set: function(newVal) { this._dispatched = newVal },
+      enumerable: false,
+      configurable: true
+    });    
     addMethods();
   }
 }
@@ -61,9 +67,14 @@ function addMethods() {
   };
   Creep.prototype.transport = function(resourceNodes = '', resource = RESOURCE_ENERGY) {
     var target = this.getMemoryObject('target');
-    if (this.store.getFreeCapacity() > 0 && this.memory.action !== 'waitDeposit') {
+    if (this.store.getFreeCapacity(resource) > 0 && this.memory.action !== 'forceDeposit') {
       if (!target) {
-        var target = this.pos.findClosestByPath(resourceNodes);        
+        var target = this.pos.findClosestByPath(resourceNodes);
+        if (!target) {
+          //combine this with default transportDeposit logic to prevent repeating.
+          //break transport function into calling two separate functions: collect & deposit?
+          return;
+        }
       }
       this.goDo(target, 'pickup', 'transportCollect');
     } else {
@@ -80,9 +91,10 @@ function addMethods() {
         path: 'returnPath',
         preserveTarget: true 
       });
+      //maybe rework to use checkIncomingWork feature for depositing energy?
       if (depositAttempt === OK || depositAttempt === ERR_FULL) {
         if (target.store.getFreeCapacity(resource) < this.store.getUsedCapacity(resource)) {
-          this.memory.action = 'waitDeposit';
+          this.memory.action = 'forceDeposit';
         } else {
           this.memory.action = 'transportDeposit';
           this.memory.target = undefined;
@@ -106,5 +118,6 @@ function addMethods() {
     } else {
       this.farmAndTransport(resourceNodes);
     }
+    this.dispatched = true;
   };
 }

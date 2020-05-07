@@ -27,13 +27,13 @@ function extendClasses() {
 }
 
 function buildRoom() {
-    var currentRoom = lib.getCurrentRoom();
-    currentRoom.resources = {
-        energy: currentRoom.find(FIND_SOURCES_ACTIVE),
-        dropped: currentRoom.find(FIND_DROPPED_RESOURCES),
-        minerals: currentRoom.find(FIND_MINERALS)
+    var currRoom = lib.getCurrentRoom();
+    currRoom.resources = {
+        energy: currRoom.find(FIND_SOURCES_ACTIVE),
+        dropped: currRoom.find(FIND_DROPPED_RESOURCES),
+        minerals: currRoom.find(FIND_MINERALS)
     };
-    currentRoom.workforce = {
+    currRoom.workforce = {
         roster: {
             basic: [],
             claimer: [],
@@ -54,20 +54,24 @@ function buildRoom() {
     let creepCount = 0;
     for (var creepKey in Game.creeps) {
       var creep = Game.creeps[creepKey];
+      creep.dispatched = false;
       var role = creep.memory.role;
-      if (currentRoom.workforce.roster[role] === undefined) {
-        currentRoom.workforce.roster[role] = [creepKey];
+      if (currRoom.workforce.roster[role] === undefined) {
+        currRoom.workforce.roster[role] = [creepKey];
       } else {
-        currentRoom.workforce.roster[role].push(creepKey);        
+        currRoom.workforce.roster[role].push(creepKey);        
       }
       var action = creep.memory.action;
-      if (currentRoom.workforce.actionCount[action]) {
-        currentRoom.workforce.actionCount[action] += 1;
+      if (currRoom.workforce.actionCount[action]) {
+        currRoom.workforce.actionCount[action] += 1;
       } else {
-        currentRoom.workforce.actionCount[action] = 1;
+        currRoom.workforce.actionCount[action] = 1;
       }
       creepCount += 1;
     }
-    currentRoom.workforce.energyTeamCount = currentRoom.workforce.roster.harvester.length + currentRoom.workforce.roster.transporter.length;
-    currentRoom.workforce.creepCount = creepCount;
+    currRoom.workforce.energyTeamCount = currRoom.workforce.roster.harvester.length + currRoom.workforce.roster.transporter.length;
+    currRoom.workforce.creepCount = creepCount;
+    //set controller upgrade deficit and incoming work
+    currRoom.controller.incomingWork = 0;
+    currRoom.controller.workRemaining = currRoom.controller.progressTotal - currRoom.controller.progress;
 }

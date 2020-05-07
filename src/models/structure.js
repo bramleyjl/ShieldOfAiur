@@ -1,6 +1,5 @@
 module.exports = {
   extendStructure: function() {
-
     Structure.prototype.canStoreResource = function(creep, resource) {
       if (this.store === undefined) {
         return false;
@@ -10,6 +9,5 @@ module.exports = {
           this.structureType == STRUCTURE_TOWER) &&
           this.store.getFreeCapacity(resource) > 0);
     }
-
   }
 }

@@ -22,6 +22,18 @@ module.exports = {
       enumerable: false,
       configurable: true
     });
+    Object.defineProperty(RoomObject.prototype, 'incomingWork', {
+      get: function() { return this._incomingWork },
+      set: function(newVal) { this._incomingWork = newVal },
+      enumerable: false,
+      configurable: true
+    });
+    Object.defineProperty(RoomObject.prototype, 'workRemaining', {
+      get: function() { return this._workRemaining },
+      set: function(newVal) { this._workRemaining = newVal },
+      enumerable: false,
+      configurable: true
+    });    
     addMethods();
   }
 }
@@ -31,5 +43,8 @@ function addMethods() {
     if (this.memory.field) {
       return Game.getObjectById(this.memory.field);
     }
+  }
+  RoomObject.prototype.checkIncomingWork = function() {
+    return (this.incomingWork >= this.workRemaining) ? true : false;
   }
 }
