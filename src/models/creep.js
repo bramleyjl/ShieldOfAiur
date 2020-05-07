@@ -54,7 +54,7 @@ function addMethods() {
       if (attempt === ERR_NOT_IN_RANGE) {
         this.moveTo(target, {visualizePathStyle: {stroke: config.styling[args.path].stroke}});
         this.memory.target = target.id;
-      } else if (attempt === OK) {
+      } else if (attempt === OK && !args['preserveTarget']) {
         this.memory.target = undefined;
       }
       return attempt;
@@ -62,14 +62,12 @@ function addMethods() {
   Creep.prototype.transport = function(resourceNodes = '', resource = RESOURCE_ENERGY) {
     var target = this.getMemoryObject('target');
     if (this.store.getFreeCapacity() > 0 && this.memory.action !== 'waitDeposit') {
-      if (!target || this.memory.action != 'transportCollect') {
-        var target = this.pos.findClosestByPath(resourceNodes);
+      if (!target) {
+        var target = this.pos.findClosestByPath(resourceNodes);        
       }
-      if (target) {
-        this.goDo(target, 'pickup', 'transportCollect');
-      }
+      this.goDo(target, 'pickup', 'transportCollect');
     } else {
-      if (!target || this.memory.action != 'transportDeposit') {
+      if (!target || this.memory.action !== 'transportDeposit') {
         var targets = this.room.find(FIND_STRUCTURES, {
           filter: (structure) => {
             return structure.canStoreResource(this, resource);
@@ -77,12 +75,17 @@ function addMethods() {
         });
         target = this.pos.findClosestByPath(targets);
       }
-      if (target) {
-        var depositAttempt = this.goDo(target, 'transfer', 'transportDeposit', { actionArgs: {resource: resource}, path: 'returnPath' });
-        if (depositAttempt === ERR_FULL) {
-          console.log('WAITING TO FINISH DEPOSIT');
-          console.log(this.store);
+      var depositAttempt = this.goDo(target, 'transfer', 'transportDeposit', { 
+        actionArgs: {resource: resource}, 
+        path: 'returnPath',
+        preserveTarget: true 
+      });
+      if (depositAttempt === OK || depositAttempt === ERR_FULL) {
+        if (target.store.getFreeCapacity(resource) < this.store.getUsedCapacity(resource)) {
           this.memory.action = 'waitDeposit';
+        } else {
+          this.memory.action = 'transportDeposit';
+          this.memory.target = undefined;
         }
       }
     }

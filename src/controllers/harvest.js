@@ -12,7 +12,7 @@ function calculatePriorities(room) {
   var harvesters = room.workforce.roster.harvester;
   dispatchHarvestOrders(harvesters, room, 'harvester');
   var transporters = room.workforce.roster.transporter;
-  dispatchHarvestOrders(transporters, room, 'transporter');
+  dispatchTransportOrders(transporters, room, 'transporter');
 }
 
 function dispatchHarvestOrders(team, room, roster) {
