@@ -1,6 +1,5 @@
 module.exports = {
   extendRoom: function() {
-    addMethods();
     Object.defineProperty(Room, 'workforce', {
       get() { return this._workforce; },
       set(newValue) { this._workforce = newValue; },
@@ -13,6 +12,7 @@ module.exports = {
       enumerable: false,
       configurable: true,
     });
+    addMethods();
   }
 }
 
@@ -26,6 +26,14 @@ function addMethods() {
     });
     return actionGroup;
   };
+  Room.prototype.getStorageTargets = function(resource = RESOURCE_ENERGY) {
+    var storageTargets = this.find(FIND_STRUCTURES, {
+      filter: (structure) => {
+        return structure.canStoreResource(this, resource);
+      }
+    });
+    return storageTargets;
+  }
   Room.prototype.reinforceRosterActionGroup = function(role, action, count, conscriptAction) {
     //come up with better method of determining which farming builder should be assigned to which task
     var actionGroup = this.getRosterActionGroup(role, action);

@@ -14,25 +14,32 @@ module.exports = {
 
 function addMethods() {
   Creep.prototype.construct = function(target) {
-
+    this.dispatched = true;  
   };
-  Creep.prototype.farm = function(resourceNodes) {
-    var target = this.getMemoryObject('target');
-    if (!target) {
-      var target = this.pos.findClosestByPath(resourceNodes, {
-        filter: (source) => {
-          return source.freeSpaces > 0;
-        }
-      });
+  Creep.prototype.collect = function (target) {
+    this.goDo(target, 'pickup', 'transportCollect');    
+    this.dispatched = true;  
+  };
+  Creep.prototype.deposit = function (target, resource) {
+    var depositAttempt = this.goDo(target, 'transfer', 'transportDeposit', { 
+      actionArgs: {resource: resource}, 
+      path: 'returnPath',
+      preserveTarget: true 
+    });
+    //maybe rework to use checkIncomingWork feature for depositing energy?
+    if (depositAttempt === OK || depositAttempt === ERR_FULL) {
+      if (target.store.getFreeCapacity(resource) < this.store.getUsedCapacity(resource)) {
+        this.memory.action = 'forceDeposit';
+      } else {
+        this.memory.action = 'transportDeposit';
+        this.memory.target = undefined;
+      }
     }
+    this.dispatched = true;  
+  };
+  Creep.prototype.farm = function(target) {
+    this.dispatched = true;
     return this.goDo(target, 'harvest', 'harvest');
-  };
-  Creep.prototype.farmAndTransport = function(resourceNodes) {
-    if (this.store.getFreeCapacity() > 0) {
-      this.farm(resourceNodes);
-    } else {
-      this.transport();
-    }
   };
   Creep.prototype.goDo = function(target, command, action, args = { path: 'movePath' }) {
       if (!target) {
@@ -65,59 +72,13 @@ function addMethods() {
       }
       return attempt;
   };
-  Creep.prototype.transport = function(resourceNodes = '', resource = RESOURCE_ENERGY) {
-    var target = this.getMemoryObject('target');
-    if (this.store.getFreeCapacity(resource) > 0 && this.memory.action !== 'forceDeposit') {
-      if (!target) {
-        var target = this.pos.findClosestByPath(resourceNodes);
-        if (!target) {
-          //combine this with default transportDeposit logic to prevent repeating.
-          //break transport function into calling two separate functions: collect & deposit?
-          return;
-        }
-      }
-      this.goDo(target, 'pickup', 'transportCollect');
-    } else {
-      if (!target || this.memory.action !== 'transportDeposit') {
-        var targets = this.room.find(FIND_STRUCTURES, {
-          filter: (structure) => {
-            return structure.canStoreResource(this, resource);
-          }
-        });
-        target = this.pos.findClosestByPath(targets);
-      }
-      var depositAttempt = this.goDo(target, 'transfer', 'transportDeposit', { 
-        actionArgs: {resource: resource}, 
-        path: 'returnPath',
-        preserveTarget: true 
-      });
-      //maybe rework to use checkIncomingWork feature for depositing energy?
-      if (depositAttempt === OK || depositAttempt === ERR_FULL) {
-        if (target.store.getFreeCapacity(resource) < this.store.getUsedCapacity(resource)) {
-          this.memory.action = 'forceDeposit';
-        } else {
-          this.memory.action = 'transportDeposit';
-          this.memory.target = undefined;
-        }
-      }
-    }
+  Creep.prototype.shouldDeposit = function(resource) {
+    return (this.store.getFreeCapacity(resource) === 0 || this.memory.action === 'forceDeposit') ? true : false;
   };
   Creep.prototype.upgrade = function(controller, resourceNodes) {
     if (controller.isActive()) {
-      if (this.store.getUsedCapacity() === 0) {
-        this.farm(resourceNodes);
-      } else if (this.store.getFreeCapacity() === 0) {
-        this.goDo(controller, 'upgradeController', 'upgrade');
-      } else {
-        if (this.memory.action === 'harvest') {
-          var attempt = this.farm(resourceNodes);
-        } else {
-          var attempt = this.goDo(controller, 'upgradeController', 'upgrade');          
-        }
-      }
-    } else {
-      this.farmAndTransport(resourceNodes);
+      var upgradeAttempt = this.goDo(controller, 'upgradeController', 'upgrade');
+      this.dispatched = true;
     }
-    this.dispatched = true;
   };
 }

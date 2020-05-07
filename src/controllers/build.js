@@ -1,5 +1,6 @@
 var lib = require('lib_lib');
 var workforceLib = require('lib_workforce_lib');
+var harvestController = require('controllers_harvest');
 
 module.exports = {
   run: function() {
@@ -36,9 +37,7 @@ function calculatePriorities(room, roomLevel) {
       }
       break;
     default:
-      builders.forEach(creepId => {
-        Game.creeps[creepId].farmAndTransport(room.resources['energy']);
-      });
+      dispatchFarmOrders(builders, room, 'builder');
       break;
   }
 }
@@ -55,16 +54,27 @@ function dispatchConstructOrders(team, targets, room, roster) {
 }
 
 function dispatchFarmOrders(team, room, roster) {
-  team.forEach(creepId => {
-    Game.creeps[creepId].farmAndTransport(room.resources['energy']);
+  var storageTargets = room.getStorageTargets();
+  var depositors = team.filter(creepId => {
+    var creep = Game.creeps[creepId];
+    return creep.shouldDeposit(RESOURCE_ENERGY);
   });
-  workforceLib.removeFromRoster(room, roster, team);
+  var harvesters = [];
+  team.forEach(creepId => {
+    if (depositors.indexOf(creepId) < 0) {
+      harvesters.push(creepId);
+    }
+  });
+  harvestController.dispatchHarvestOrders(harvesters, room, 'builder');
+  harvestController.dispatchTransportOrders(depositors, room, 'builder');
 }
 
 function dispatchUpgradeOrders(team, room, roster) {
+  var farmers = [];
   team.forEach(creepId => {
     var creep = Game.creeps[creepId];
-    if (creep.store.getFreeCapacity() === 0 || creep.memory.action === 'upgrade') {
+    if (creep.store.getUsedCapacity() > 0 && 
+      (creep.store.getFreeCapacity() === 0 || creep.memory.action === 'upgrade')) {
       var enoughWork = room.controller.checkIncomingWork();
       if (!enoughWork) {
         creep.upgrade(room.controller, room.resources['energy']);
@@ -72,8 +82,12 @@ function dispatchUpgradeOrders(team, room, roster) {
       }
     }
     if (!creep.dispatched) {
-      creep.farmAndTransport(room.resources['energy']);
+      farmers.push(creepId);
+      team.unshift(team.indexOf(creepId));
     }
   });
+  if (farmers.length > 0) {
+    dispatchFarmOrders(farmers, room, 'builder');
+  }
   workforceLib.removeFromRoster(room, roster, team);
 }
