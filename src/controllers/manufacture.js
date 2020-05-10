@@ -19,16 +19,19 @@ function chooseRoleType(room, spawn) {
   var harvesters = workforceLib.getRoleCount(room, 'harvester');
   var transporters = workforceLib.getRoleCount(room, 'transporter');
   var builders = workforceLib.getRoleCount(room, 'builder');
-
-  if (creepCount === 0) {
+  return;
+  if (creepCount === 0 || builders < energyTeamCount) {
     return 'builder';
   }
-  if (room.workforce.energyTeamCount <= (creepCount / 2)) {
+  if (room.resources.totalHarvestSpaces <= harvesters) {
+    if (transporters < harvesters) {
+      return 'transporter';
+    }
+  } else if (room.workforce.energyTeamCount <= (creepCount / 2)) {
     if (harvesters > transporters) {
       return 'transporter';
     } else {
       return 'harvester';
-    }
+    }      
   }
-  return 'builder';
 }

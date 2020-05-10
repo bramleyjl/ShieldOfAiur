@@ -28,11 +28,7 @@ function extendClasses() {
 
 function buildRoom() {
     var currRoom = lib.getCurrentRoom();
-    currRoom.resources = {
-        energy: currRoom.find(FIND_SOURCES_ACTIVE),
-        dropped: currRoom.find(FIND_DROPPED_RESOURCES),
-        minerals: currRoom.find(FIND_MINERALS)
-    };
+    currRoom.buildResources();
     currRoom.workforce = {
         roster: {
             basic: [],

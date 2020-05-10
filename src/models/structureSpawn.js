@@ -16,6 +16,9 @@ module.exports = {
       return this.spawnCreep(parts, creepId, traits);
     };
     StructureSpawn.prototype.canBuildCreep = function(role) {
+      if (!role) {
+        return -1;
+      }
       return this.buildCreep(role, { dryRun: true });
     };
   }

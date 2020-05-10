@@ -17,6 +17,17 @@ module.exports = {
 }
 
 function addMethods() {
+  Room.prototype.buildResources = function() {
+    this.resources = {
+      energy: this.find(FIND_SOURCES_ACTIVE),
+      dropped: this.find(FIND_DROPPED_RESOURCES),
+      minerals: this.find(FIND_MINERALS),
+      totalHarvestSpaces: 0
+    };
+    this.resources.energy.forEach(source => {
+      this.resources.totalHarvestSpaces += source.freeSpaces;
+    });
+  };
   Room.prototype.getRosterActionGroup = function(role, action) {
     var actionGroup = this.workforce.roster[role].filter(creepKey => {
       var creep = Game.creeps[creepKey];
