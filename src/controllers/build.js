@@ -59,12 +59,15 @@ function dispatchFarmOrders(team, room, roster) {
     var creep = Game.creeps[creepId];
     return creep.shouldDeposit(RESOURCE_ENERGY);
   });
-  var harvesters = [];
-  team.forEach(creepId => {
-    if (depositors.indexOf(creepId) < 0) {
-      harvesters.push(creepId);
-    }
-  });
+  var harvesters = team.filter(creepId => {
+    return depositors.indexOf(creepId) < 0;
+  })
+  // var harvesters = [];
+  // team.forEach(creepId => {
+  //   if (depositors.indexOf(creepId) < 0) {
+  //     harvesters.push(creepId);
+  //   }
+  // });
   harvestController.dispatchHarvestOrders(harvesters, room, 'builder');
   harvestController.dispatchTransportOrders(depositors, room, 'builder');
 }

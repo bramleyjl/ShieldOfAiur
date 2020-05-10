@@ -19,7 +19,7 @@ module.exports = {
         });
       }
       if (target) {
-        creep.farm(target);
+        var attempt = creep.farm(target);
       }
     });
     workforceLib.removeFromRoster(room, roster, team);
@@ -35,7 +35,7 @@ module.exports = {
           target = creep.pos.findClosestByPath(storageTargets);
         }
         if (target) {
-          creep.deposit(target, RESOURCE_ENERGY);
+          var attempt = creep.deposit(target, RESOURCE_ENERGY);
         }
       } else {      
         //collect dropped energy
@@ -43,10 +43,10 @@ module.exports = {
           target = creep.pos.findClosestByPath(room.resources['dropped']);
         }
         if (target) {
-          creep.collect(target);
+          var attempt = creep.collect(target);
         } else {
           target = creep.pos.findClosestByPath(storageTargets);
-          creep.deposit(target, RESOURCE_ENERGY);        
+          var attempt = creep.deposit(target, RESOURCE_ENERGY);        
         }
       }
     });

@@ -17,29 +17,32 @@ function addMethods() {
     this.dispatched = true;  
   };
   Creep.prototype.collect = function (target) {
-    this.goDo(target, 'pickup', 'transportCollect');    
-    this.dispatched = true;  
+    var attempt = this.goDo(target, 'pickup', 'transportCollect');
+    if (attempt === OK) this.dispatched = true;
+    return attempt;
   };
   Creep.prototype.deposit = function (target, resource) {
-    var depositAttempt = this.goDo(target, 'transfer', 'transportDeposit', { 
+    var attempt = this.goDo(target, 'transfer', 'transportDeposit', { 
       actionArgs: {resource: resource}, 
       path: 'returnPath',
       preserveTarget: true 
     });
     //maybe rework to use checkIncomingWork feature for depositing energy?
-    if (depositAttempt === OK || depositAttempt === ERR_FULL) {
+    if (attempt === OK || attempt === ERR_FULL) {
       if (target.store.getFreeCapacity(resource) < this.store.getUsedCapacity(resource)) {
         this.memory.action = 'forceDeposit';
       } else {
         this.memory.action = 'transportDeposit';
         this.memory.target = undefined;
       }
+      this.dispatched = true;
     }
-    this.dispatched = true;  
+    return attempt;
   };
   Creep.prototype.farm = function(target) {
-    this.dispatched = true;
-    return this.goDo(target, 'harvest', 'harvest');
+    var attempt = this.goDo(target, 'harvest', 'harvest');
+    if (attempt === OK) this.dispatched = true;
+    return attempt;
   };
   Creep.prototype.goDo = function(target, command, action, args = { path: 'movePath' }) {
       if (!target) {
@@ -77,8 +80,9 @@ function addMethods() {
   };
   Creep.prototype.upgrade = function(controller, resourceNodes) {
     if (controller.isActive()) {
-      var upgradeAttempt = this.goDo(controller, 'upgradeController', 'upgrade');
-      this.dispatched = true;
+      var attempt = this.goDo(controller, 'upgradeController', 'upgrade');
+      if (attempt === OK) this.dispatched = true;
+      return attempt;
     }
   };
 }
