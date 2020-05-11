@@ -13,14 +13,8 @@ module.exports = {
 function calculatePriorities(room, roomLevel) {
   var builders = room.workforce.roster.builder;
   var constructionTargets = calculateConstructionTargets(room, roomLevel);
-<<<<<<< HEAD
   var openHarvestSpaces = room.getOpenHarvestSpaces();
   var canHarvest = (openHarvestSpaces > 0) ? true : false;
-=======
-
-
-
->>>>>>> added wall queue function
   switch (roomLevel) {
     case 0:
     case 1:
@@ -107,12 +101,4 @@ function dispatchUpgradeOrders(team, room, roster, canHarvest) {
       workforceLib.removeFromRoster(room, roster, team);
     }
   });
-<<<<<<< HEAD
 }
-=======
-  if (farmers.length > 0) {
-    dispatchFarmOrders(farmers, room, 'builder');
-  }
-  workforceLib.removeFromRoster(room, roster, team);
-}
->>>>>>> added wall queue function
