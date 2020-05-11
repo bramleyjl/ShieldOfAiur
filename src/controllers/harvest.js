@@ -24,29 +24,39 @@ module.exports = {
     });
     workforceLib.removeFromRoster(room, roster, team);
   },
-  dispatchTransportOrders: function(team, room, roster) {
-    var storageTargets = room.getStorageTargets();
+  dispatchTransportOrders: function(team, room, roster, command = '', resource = RESOURCE_ENERGY) {
     team.forEach(creepId => {
       var creep = Game.creeps[creepId];
       var target = creep.getMemoryObject('target');
-      if (creep.shouldDeposit(RESOURCE_ENERGY)) {
-        //deposit to structure
-        if (!target || creep.memory.action !== 'transportDeposit') {
-          target = creep.pos.findClosestByPath(storageTargets);
-        }
-        if (target) {
-          var attempt = creep.deposit(target, RESOURCE_ENERGY);
-        }
-      } else {      
-        //collect dropped energy
+      if (command === 'refuel') {
         if (!target) {
-          target = creep.pos.findClosestByPath(room.resources['dropped']);
+          var refuelTargets = room.getRefuelTargets();
+          target = creep.pos.findClosestByPath(refuelTargets);
         }
         if (target) {
-          var attempt = creep.collect(target);
-        } else {
-          target = creep.pos.findClosestByPath(storageTargets);
-          var attempt = creep.deposit(target, RESOURCE_ENERGY);        
+          var attempt = creep.refuel(target, resource);
+        }
+      } else {
+        var storageTargets = room.getStorageTargets();
+        if (creep.shouldDeposit(resource)) {
+          //deposit to structure
+          if (!target || creep.memory.action !== 'transportDeposit') {
+            target = creep.pos.findClosestByPath(storageTargets);
+          }
+          if (target) {
+            var attempt = creep.deposit(target, resource);
+          }
+        } else {      
+          //collect dropped energy
+          if (!target) {
+            target = creep.pos.findClosestByPath(room.resources['dropped']);
+          }
+          if (target) {
+            var attempt = creep.collect(target);
+          } else {
+            target = creep.pos.findClosestByPath(storageTargets);
+            var attempt = creep.deposit(target, resource);        
+          }
         }
       }
     });

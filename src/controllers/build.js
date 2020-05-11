@@ -13,32 +13,36 @@ module.exports = {
 function calculatePriorities(room, roomLevel) {
   var builders = room.workforce.roster.builder;
   var constructionTargets = calculateConstructionTargets(room, roomLevel);
+  var openHarvestSpaces = room.getOpenHarvestSpaces();
+  var canHarvest = (openHarvestSpaces > 0) ? true : false;
   switch (roomLevel) {
     case 0:
     case 1:
       //arbitrary condition of "enough resource gathering to warrant upgrading"
       if (room.workforce.energyTeamCount >= (room.resources.energy.length / 2)) {
-        var upgradeTeam = room.reinforceRosterActionGroup('builder', 'upgrade', 2, 'harvest');
-        dispatchUpgradeOrders(upgradeTeam, room, 'builder');
-        dispatchFarmOrders(room.workforce.roster.builder, room, 'builder');
-      } else {
-        dispatchFarmOrders(builders, room, 'builder');
+        var upgradeTeam = room.reinforceRosterActionGroup('builder', 'upgrade', 2, ['harvest', 'refuel']);
+        dispatchUpgradeOrders(upgradeTeam, room, 'builder', canHarvest);
       }
       break;
     case 2:
       if (room.workforce.energyTeamCount >= room.resources.energy.length) {
-        var upgradeTeam = room.reinforceRosterActionGroup('builder', 'upgrade', 2, 'harvest');
-        dispatchUpgradeOrders(upgradeTeam, room, 'builder');
-        //replace with construction logic
-        dispatchFarmOrders(room.workforce.roster.builder, room, 'builder');
+        var upgradeTeam = room.reinforceRosterActionGroup('builder', 'upgrade', 2, ['harvest', 'refuel']);
+        dispatchUpgradeOrders(upgradeTeam, room, 'builder', canHarvest);
         //dispatchConstructOrders(room.workforce.roster.builder, constructionTargets, room, 'builder');
-      } else {
-        dispatchFarmOrders(builders, room, 'builder');
       }
       break;
     default:
-      dispatchFarmOrders(builders, room, 'builder');
+      //no default, extra builders sent to farm below
       break;
+  }
+  //cleanup for any unused builders
+  var cleanupBuilders = room.workforce.roster.builder;
+  if (cleanupBuilders.length > 0) {
+    if (canHarvest) {
+      dispatchFarmOrders(cleanupBuilders, room, 'builder');
+    } else {
+      harvestController.dispatchTransportOrders(cleanupBuilders, room, 'builder', 'refuel');
+    }
   }
 }
 
@@ -62,17 +66,11 @@ function dispatchFarmOrders(team, room, roster) {
   var harvesters = team.filter(creepId => {
     return depositors.indexOf(creepId) < 0;
   })
-  // var harvesters = [];
-  // team.forEach(creepId => {
-  //   if (depositors.indexOf(creepId) < 0) {
-  //     harvesters.push(creepId);
-  //   }
-  // });
   harvestController.dispatchHarvestOrders(harvesters, room, 'builder');
   harvestController.dispatchTransportOrders(depositors, room, 'builder');
 }
 
-function dispatchUpgradeOrders(team, room, roster) {
+function dispatchUpgradeOrders(team, room, roster, canHarvest) {
   var farmers = [];
   team.forEach(creepId => {
     var creep = Game.creeps[creepId];
@@ -83,14 +81,7 @@ function dispatchUpgradeOrders(team, room, roster) {
         creep.upgrade(room.controller, room.resources['energy']);
         room.controller.incomingWork += creep.store.getUsedCapacity(RESOURCE_ENERGY);
       }
-    }
-    if (!creep.dispatched) {
-      farmers.push(creepId);
-      team.unshift(team.indexOf(creepId));
+      workforceLib.removeFromRoster(room, roster, team);
     }
   });
-  if (farmers.length > 0) {
-    dispatchFarmOrders(farmers, room, 'builder');
-  }
-  workforceLib.removeFromRoster(room, roster, team);
 }

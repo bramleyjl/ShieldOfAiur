@@ -28,6 +28,21 @@ function addMethods() {
       this.resources.totalHarvestSpaces += source.freeSpaces;
     });
   };
+  Room.prototype.getOpenHarvestSpaces = function() {
+    var openSpaces = 0;
+    this.resources.energy.forEach(source => {
+      openSpaces += source.freeSpaces;
+    });
+    return openSpaces;
+  }
+  Room.prototype.getRefuelTargets = function(resource = RESOURCE_ENERGY) {
+    var refuelTargets = this.find(FIND_STRUCTURES, {
+      filter: (structure) => {
+        return structure.hasResource(resource);
+      }
+    });
+    return refuelTargets;
+  }
   Room.prototype.getRosterActionGroup = function(role, action) {
     var actionGroup = this.workforce.roster[role].filter(creepKey => {
       var creep = Game.creeps[creepKey];
@@ -40,20 +55,24 @@ function addMethods() {
   Room.prototype.getStorageTargets = function(resource = RESOURCE_ENERGY) {
     var storageTargets = this.find(FIND_STRUCTURES, {
       filter: (structure) => {
-        return structure.canStoreResource(this, resource);
+        return structure.canStoreResource(resource);
       }
     });
     return storageTargets;
   }
-  Room.prototype.reinforceRosterActionGroup = function(role, action, count, conscriptAction) {
+  Room.prototype.reinforceRosterActionGroup = function(role, action, count, conscriptActions) {
     //come up with better method of determining which farming builder should be assigned to which task
     var actionGroup = this.getRosterActionGroup(role, action);
-    var conscriptGroup = this.getRosterActionGroup(role, conscriptAction)
     var creepDiff = count - actionGroup.length;
-    if (creepDiff > 0 && conscriptGroup.length > 0) {
-      var conscripts = selectBestConscript(conscriptGroup, conscriptAction, creepDiff);
-      return actionGroup.concat(conscripts);
-    }
+    conscriptActions.forEach(action => {
+      if (creepDiff > 0 ) {
+      var conscriptGroup = this.getRosterActionGroup(role, action);
+        if (conscriptGroup) {
+          var conscripts = selectBestConscript(conscriptGroup, action, creepDiff);
+          actionGroup = actionGroup.concat(conscripts);
+        }
+      }
+    });
     return actionGroup;
   };
 }

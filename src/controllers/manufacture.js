@@ -19,8 +19,8 @@ function chooseRoleType(room, spawn) {
   var harvesters = workforceLib.getRoleCount(room, 'harvester');
   var transporters = workforceLib.getRoleCount(room, 'transporter');
   var builders = workforceLib.getRoleCount(room, 'builder');
-  return;
-  if (creepCount === 0 || builders < energyTeamCount) {
+
+  if (creepCount === 0 || builders < room.workforce.energyTeamCount) {
     return 'builder';
   }
   if (room.resources.totalHarvestSpaces <= harvesters) {

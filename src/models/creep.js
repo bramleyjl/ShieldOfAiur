@@ -7,7 +7,7 @@ module.exports = {
       set: function(newVal) { this._dispatched = newVal },
       enumerable: false,
       configurable: true
-    });    
+    });
     addMethods();
   }
 }
@@ -18,7 +18,6 @@ function addMethods() {
   };
   Creep.prototype.collect = function (target) {
     var attempt = this.goDo(target, 'pickup', 'transportCollect');
-    if (attempt === OK) this.dispatched = true;
     return attempt;
   };
   Creep.prototype.deposit = function (target, resource) {
@@ -35,13 +34,11 @@ function addMethods() {
         this.memory.action = 'transportDeposit';
         this.memory.target = undefined;
       }
-      this.dispatched = true;
     }
     return attempt;
   };
   Creep.prototype.farm = function(target) {
     var attempt = this.goDo(target, 'harvest', 'harvest');
-    if (attempt === OK) this.dispatched = true;
     return attempt;
   };
   Creep.prototype.goDo = function(target, command, action, args = { path: 'movePath' }) {
@@ -61,6 +58,8 @@ function addMethods() {
           break;
         case 'upgradeController':
           var attempt = this.upgradeController(target);
+        case 'withdraw':
+          var attempt = this.withdraw(target, args.actionArgs.resource);
         default:
           var attempt = ERR_NOT_IN_RANGE;
           break;
@@ -75,13 +74,31 @@ function addMethods() {
       }
       return attempt;
   };
+  Creep.prototype.refuel = function(target, resource) {
+    var attempt = this.goDo(target, 'withdraw', 'refuel', {
+      actionArgs: {
+        resource: resource
+      },
+      path: 'returnPath',
+      preserveTarget: true 
+    });
+    if (attempt === ERR_FULL) {
+      this.memory.action = '';
+      this.memory.target = undefined;
+    } else {
+      this.memory.action = 'waitRefuel';
+    }
+    return attempt;
+  };
   Creep.prototype.shouldDeposit = function(resource) {
     return (this.store.getFreeCapacity(resource) === 0 || this.memory.action === 'forceDeposit') ? true : false;
+  };
+  Creep.prototype.shouldRefuel = function(resource) {
+    return (this.store.getFreeCapacity(resource) > 0 || this.memory.action === 'forceRefuel') ? true : false;
   };
   Creep.prototype.upgrade = function(controller, resourceNodes) {
     if (controller.isActive()) {
       var attempt = this.goDo(controller, 'upgradeController', 'upgrade');
-      if (attempt === OK) this.dispatched = true;
       return attempt;
     }
   };
