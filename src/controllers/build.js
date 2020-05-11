@@ -13,8 +13,14 @@ module.exports = {
 function calculatePriorities(room, roomLevel) {
   var builders = room.workforce.roster.builder;
   var constructionTargets = calculateConstructionTargets(room, roomLevel);
+<<<<<<< HEAD
   var openHarvestSpaces = room.getOpenHarvestSpaces();
   var canHarvest = (openHarvestSpaces > 0) ? true : false;
+=======
+
+
+
+>>>>>>> added wall queue function
   switch (roomLevel) {
     case 0:
     case 1:
@@ -46,6 +52,23 @@ function calculatePriorities(room, roomLevel) {
   }
 }
 
+function queueWall(start, end){
+  var wallQueue = {
+    sites: []
+  }
+  var wallpath = start.pos.findPathTo(end);
+  wallpath.forEach(pos => {
+    var consTask = {
+      type: STRUCTURE_WALL,
+      pos: pos
+      //add width, rampart length here
+    }
+    wallQueue.sites.push(consTask);
+    //push is append on arrays <- for pfitsches
+  })
+  return wallQueue
+}
+
 function calculateConstructionTargets(room, roomLevel) {
 
 }
@@ -74,7 +97,7 @@ function dispatchUpgradeOrders(team, room, roster, canHarvest) {
   var farmers = [];
   team.forEach(creepId => {
     var creep = Game.creeps[creepId];
-    if (creep.store.getUsedCapacity() > 0 && 
+    if (creep.store.getUsedCapacity() > 0 &&
       (creep.store.getFreeCapacity() === 0 || creep.memory.action === 'upgrade')) {
       var enoughWork = room.controller.checkIncomingWork();
       if (!enoughWork) {
@@ -84,4 +107,12 @@ function dispatchUpgradeOrders(team, room, roster, canHarvest) {
       workforceLib.removeFromRoster(room, roster, team);
     }
   });
+<<<<<<< HEAD
 }
+=======
+  if (farmers.length > 0) {
+    dispatchFarmOrders(farmers, room, 'builder');
+  }
+  workforceLib.removeFromRoster(room, roster, team);
+}
+>>>>>>> added wall queue function
