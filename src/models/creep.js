@@ -58,8 +58,10 @@ function addMethods() {
           break;
         case 'upgradeController':
           var attempt = this.upgradeController(target);
+          break;
         case 'withdraw':
           var attempt = this.withdraw(target, args.actionArgs.resource);
+          break;
         default:
           var attempt = ERR_NOT_IN_RANGE;
           break;

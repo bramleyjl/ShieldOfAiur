@@ -21,6 +21,6 @@ function addMethods() {
     return ((this.structureType == STRUCTURE_EXTENSION ||
       this.structureType == STRUCTURE_SPAWN ||
       this.structureType == STRUCTURE_TOWER) &&
-      this.store[resource] > 0);
-  }
+      this.store.getUsedCapacity(resource) > 0);
+  };
 }
