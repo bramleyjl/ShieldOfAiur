@@ -20,14 +20,15 @@ function calculatePriorities(room, roomLevel) {
     case 1:
       //arbitrary condition of "enough resource gathering to warrant upgrading"
       if (room.workforce.energyTeamCount >= (room.resources.energy.length / 2)) {
-        var upgradeTeam = room.reinforceRosterActionGroup('builder', 'upgrade', 2, ['harvest', 'refuel']);
+        var upgradeTeam = room.reinforceRosterActionGroup('builder', 'upgrade', ['transportDeposit', 'forceDeposit'], 2);
         dispatchUpgradeOrders(upgradeTeam, room, 'builder', canHarvest);
       }
       break;
     case 2:
       if (room.workforce.energyTeamCount >= room.resources.energy.length) {
-        var upgradeTeam = room.reinforceRosterActionGroup('builder', 'upgrade', 2, ['harvest', 'refuel']);
+        var upgradeTeam = room.reinforceRosterActionGroup('builder', 'upgrade', ['transportDeposit', 'forceDeposit'], 2);
         dispatchUpgradeOrders(upgradeTeam, room, 'builder', canHarvest);
+        // var constructionTeam = room.reinforceRosterActionGroup('builder', 'construct', ['upgrade', transportDeposit', 'forceDeposit']);
         //dispatchConstructOrders(room.workforce.roster.builder, constructionTargets, room, 'builder');
       }
       break;

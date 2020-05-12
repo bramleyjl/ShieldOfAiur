@@ -60,19 +60,28 @@ function addMethods() {
     });
     return storageTargets;
   }
-  Room.prototype.reinforceRosterActionGroup = function(role, action, count, conscriptActions) {
+  Room.prototype.reinforceRosterActionGroup = function(role, action, conscripts, count = 0) {
     //come up with better method of determining which farming builder should be assigned to which task
     var actionGroup = this.getRosterActionGroup(role, action);
+    if (count === 0) count = 999;
     var creepDiff = count - actionGroup.length;
-    conscriptActions.forEach(action => {
-      if (creepDiff > 0 ) {
-      var conscriptGroup = this.getRosterActionGroup(role, action);
-        if (conscriptGroup) {
-          var conscripts = selectBestConscript(conscriptGroup, action, creepDiff);
-          actionGroup = actionGroup.concat(conscripts);
+    if (creepDiff > 0) {
+      conscripts.forEach(conscriptAction => {
+        if (creepDiff > 0) {
+          var conscriptGroup = this.getRosterActionGroup(role, conscriptAction);
+          if (conscriptGroup) {
+            if (conscriptGroup.length > (creepDiff)) {
+              var conscripts = selectBestConscript(conscriptGroup, conscriptAction, creepDiff);
+              actionGroup = actionGroup.concat(conscripts);
+              return actionGroup;
+            } else {
+              actionGroup = actionGroup.concat(conscriptGroup);
+              creepDiff -= conscriptGroup;
+            }
+          }
         }
-      }
-    });
+      });
+    }
     return actionGroup;
   };
 }
