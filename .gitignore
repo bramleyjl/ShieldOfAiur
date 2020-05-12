@@ -2,3 +2,5 @@
 /.sublime-grunt.cache
 /dist/
 /node_modules/
+/jpscreepsinit.sh
+/.DS_Store

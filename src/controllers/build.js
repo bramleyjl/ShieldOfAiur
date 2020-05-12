@@ -47,6 +47,23 @@ function calculatePriorities(room, roomLevel) {
   }
 }
 
+function queueWall(start, end){
+  var wallQueue = {
+    sites: []
+  }
+  var wallpath = start.pos.findPathTo(end);
+  wallpath.forEach(pos => {
+    var consTask = {
+      type: STRUCTURE_WALL,
+      pos: pos
+      //add width, rampart length here
+    }
+    wallQueue.sites.push(consTask);
+    //push is append on arrays <- for pfitsches
+  })
+  return wallQueue
+}
+
 function calculateConstructionTargets(room, roomLevel) {
 
 }
@@ -75,7 +92,7 @@ function dispatchUpgradeOrders(team, room, roster, canHarvest) {
   var farmers = [];
   team.forEach(creepId => {
     var creep = Game.creeps[creepId];
-    if (creep.store.getUsedCapacity() > 0 && 
+    if (creep.store.getUsedCapacity() > 0 &&
       (creep.store.getFreeCapacity() === 0 || creep.memory.action === 'upgrade')) {
       var enoughWork = room.controller.checkIncomingWork();
       if (!enoughWork) {
