@@ -12,7 +12,11 @@ module.exports = {
 
 function calculatePriorities(room, roomLevel) {
   var builders = room.workforce.roster.builder;
-  var constructionTargets = calculateConstructionTargets(room, roomLevel);
+  if (!room.memory.projects) {
+    var constructionTargets = calculateConstructionTargets(room, roomLevel);
+  } else {
+    var constructionTargets = calculateConstructionTargets(room, roomLevel, true);
+  }
   var openHarvestSpaces = room.getOpenHarvestSpaces();
   var canHarvest = (openHarvestSpaces > 0) ? true : false;
   switch (roomLevel) {
@@ -28,8 +32,8 @@ function calculatePriorities(room, roomLevel) {
       if (room.workforce.energyTeamCount >= room.resources.energy.length) {
         var upgradeTeam = room.reinforceRosterActionGroup('builder', 'upgrade', ['transportDeposit', 'forceDeposit'], 2);
         dispatchUpgradeOrders(upgradeTeam, room, 'builder', canHarvest);
-        // var constructionTeam = room.reinforceRosterActionGroup('builder', 'construct', ['upgrade', transportDeposit', 'forceDeposit']);
-        //dispatchConstructOrders(room.workforce.roster.builder, constructionTargets, room, 'builder');
+        var constructionTeam = room.reinforceRosterActionGroup('builder', 'construct', ['upgrade', 'transportDeposit', 'forceDeposit']);
+        dispatchConstructOrders(constructionTeam, room, 'builder', constructionTargets);
       }
       break;
     default:
@@ -47,32 +51,70 @@ function calculatePriorities(room, roomLevel) {
   }
 }
 
-function queueWall(start, end){
-  var wallQueue = {
-    sites: []
-  }
-  var wallpath = start.pos.findPathTo(end);
-  wallpath.forEach(pos => {
-    var consTask = {
-      type: STRUCTURE_WALL,
-      pos: pos
-      //add width, rampart length here
-    }
-    wallQueue.sites.push(consTask);
-    //push is append on arrays <- for pfitsches
-  })
-  return wallQueue
+function calculateConstructionTargets(room, roomLevel, update = false) {
+    var projects = (update) ? room.memory.projects : [];
+    calculateRoadTargets(room, projects, update);
+    //calculateWallTargets(start, end);
+    room.memory.projects = projects;
 }
 
-function calculateConstructionTargets(room, roomLevel) {
-
+function calculateRoadTargets(room, projects, update) {
+    //calculate which sources are getting farmed and build roads to them
+    var sources = room.resources.energy;
+    if (update) {
+      var builtSources = 0;
+      sources = sources.filter(source => {
+        if (room.memory.sources[source.id].developed === false) {
+          return true;
+        } else {
+          builtSources += 1;
+          return false;
+        }
+      });
+      var sourceRoadProjects = room.memory.projects.filter(project => {
+        return project.targetClass === 'source';
+      });
+      sourceRoadProjects.forEach(project => {
+        for (var i = sources.length -1; i >= 0; i--) {
+          if (project.targetId === sources[i].id) {
+            sources.splice(i, 1);
+            break;
+          }
+        }
+      });
+    }
+    //maybe change to range from spawn instead of energyDeficit??
+    if (sources.length > 0) {
+      sources.sort(function compare(a, b) {
+        return a.energyDeficit < b.energyDeficit;
+      });
+      var source = sources[0];
+      var target = source.pos.findClosestByPath(room.getStorageTargets());
+      var roadArgs = {
+        targetId: source.id,
+        targetClass: 'source',
+        structure: STRUCTURE_ROAD,
+      };
+      switch (builtSources + sourceRoadProjects) {
+        //high prio for # 1 & 2, lower for rest
+        case 0:
+          roadArgs.priority = 1000;
+        case 1:
+          roadArgs.priority = 800;
+        default:
+          roadArgs.priority = 500;
+      }
+      var roadJob = queueLongStructure(source, target, roadArgs);
+      projects.push(roadJob);
+    }
 }
 
 function dispatchConstructOrders(team, targets, room, roster) {
-  team.forEach(creepId => {
-    Game.creeps[creepId].construct();
-  });
-  workforceLib.removeFromRoster(room, roster, team);
+  console.log(team);
+  // team.forEach(creepId => {
+  //   Game.creeps[creepId].construct();
+  // });
+  // workforceLib.removeFromRoster(room, roster, team);
 }
 
 function dispatchFarmOrders(team, room, roster) {
@@ -103,3 +145,27 @@ function dispatchUpgradeOrders(team, room, roster, canHarvest) {
     }
   });
 }
+
+function calculateWallTargets(start, end) {
+  return queueLongStructure(start, end);
+}
+
+function queueLongStructure(start, end, structureArgs) {
+  var job = {
+    targetId: structureArgs.targetId,
+    targetClass: structureArgs.targetClass,
+    priority: structureArgs.priority,
+    sites: []
+  };
+  var jobPath = start.pos.findPathTo(end);
+  jobPath.forEach(pos => {
+    var consTask = {
+      type: structureArgs.structure,
+      pos: pos
+      //add width, rampart length here
+    }
+    job.sites.push(consTask);
+    //push is append on arrays <- for pfitsches
+  });
+  return job;
+};

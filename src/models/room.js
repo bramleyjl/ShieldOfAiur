@@ -1,3 +1,5 @@
+var memoryLib = require('lib_memory_lib');
+
 module.exports = {
   extendRoom: function() {
     Object.defineProperty(Room, 'workforce', {
@@ -17,6 +19,16 @@ module.exports = {
 }
 
 function addMethods() {
+  Room.prototype.buildMemory = function(){
+    this.memory['sources'] = [];
+    var sources = memoryLib.transformToIds(this.resources.energy);
+    sources.forEach(source => {
+      this.memory['sources'][source] = {
+        developed: false
+      };
+    });
+    this.memory['sources']['developedCount'] = 0;
+  };
   Room.prototype.buildResources = function() {
     this.resources = {
       energy: this.find(FIND_SOURCES_ACTIVE),
@@ -34,7 +46,7 @@ function addMethods() {
       openSpaces += source.freeSpaces;
     });
     return openSpaces;
-  }
+  };
   Room.prototype.getRefuelTargets = function(resource = RESOURCE_ENERGY) {
     var refuelTargets = this.find(FIND_STRUCTURES, {
       filter: (structure) => {
@@ -42,7 +54,7 @@ function addMethods() {
       }
     });
     return refuelTargets;
-  }
+  };
   Room.prototype.getRosterActionGroup = function(role, action) {
     var actionGroup = this.workforce.roster[role].filter(creepKey => {
       var creep = Game.creeps[creepKey];
@@ -59,7 +71,7 @@ function addMethods() {
       }
     });
     return storageTargets;
-  }
+  };
   Room.prototype.reinforceRosterActionGroup = function(role, action, conscripts, count = 0) {
     //come up with better method of determining which farming builder should be assigned to which task
     var actionGroup = this.getRosterActionGroup(role, action);
@@ -81,7 +93,7 @@ function addMethods() {
           }
         }
       });
-    }
+    };
     return actionGroup;
   };
 }
