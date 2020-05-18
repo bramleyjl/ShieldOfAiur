@@ -23,15 +23,11 @@ function chooseRoleType(room, spawn) {
   if (creepCount === 0 || builders < room.workforce.energyTeamCount) {
     return 'builder';
   }
-  if (room.resources.totalHarvestSpaces <= harvesters) {
+  if (room.resources.totalHarvestSpaces > harvesters) {
     if (transporters < harvesters) {
       return 'transporter';
-    }
-  } else if (room.workforce.energyTeamCount <= (creepCount / 2)) {
-    if (harvesters > transporters) {
-      return 'transporter';
     } else {
-      return 'harvester';
-    }      
+      return 'harvester'
+    }
   }
 }

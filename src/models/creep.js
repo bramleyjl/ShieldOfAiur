@@ -13,11 +13,12 @@ module.exports = {
 }
 
 function addMethods() {
-  Creep.prototype.construct = function(target) {
-    this.dispatched = true;  
-  };
   Creep.prototype.collect = function (target) {
     var attempt = this.goDo(target, 'pickup', 'transportCollect');
+    return attempt;
+  };
+  Creep.prototype.construct = function(target) {
+    var attempt = this.goDo(target, 'build', 'build');
     return attempt;
   };
   Creep.prototype.deposit = function (target, resource) {
@@ -47,6 +48,9 @@ function addMethods() {
         return;
       }
       switch (command) {
+        case 'build':
+          var attempt = this.build(target);
+          break;
         case 'harvest':
           var attempt = this.harvest(target);
           break;

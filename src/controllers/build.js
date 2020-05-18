@@ -30,9 +30,13 @@ function calculatePriorities(room, roomLevel) {
       break;
     case 2:
       if (room.workforce.energyTeamCount >= room.resources.energy.length) {
-        var upgradeTeam = room.reinforceRosterActionGroup('builder', 'upgrade', ['transportDeposit', 'forceDeposit'], 2);
-        dispatchUpgradeOrders(upgradeTeam, room, 'builder', canHarvest);
-        var constructionTeam = room.reinforceRosterActionGroup('builder', 'construct', ['upgrade', 'transportDeposit', 'forceDeposit']);
+        //level 2 condition not yet defined, focus on construction first
+        if (1 === 2) {
+          var upgradeTeam = room.reinforceRosterActionGroup('builder', 'upgrade', ['transportDeposit', 'forceDeposit'], 2);
+          console.log('UPGRADE ' + upgradeTeam)
+          dispatchUpgradeOrders(upgradeTeam, room, 'builder', canHarvest);
+        }
+        var constructionTeam = room.reinforceRosterActionGroup('builder', 'build', ['transportDeposit', 'forceDeposit']);
         dispatchConstructOrders(constructionTeam, room, 'builder', constructionTargets);
       }
       break;
@@ -56,13 +60,14 @@ function calculateConstructionTargets(room, roomLevel, update = false) {
     calculateRoadTargets(room, projects, update);
     //calculateWallTargets(start, end);
     room.memory.projects = projects;
+    return projects;
 }
 
 function calculateRoadTargets(room, projects, update) {
     //calculate which sources are getting farmed and build roads to them
     var sources = room.resources.energy;
+    var builtSources = 0;
     if (update) {
-      var builtSources = 0;
       sources = sources.filter(source => {
         if (room.memory.sources[source.id].developed === false) {
           return true;
@@ -89,32 +94,71 @@ function calculateRoadTargets(room, projects, update) {
         return a.energyDeficit < b.energyDeficit;
       });
       var source = sources[0];
-      var target = source.pos.findClosestByPath(room.getStorageTargets());
+      var target = source.pos.findClosestByPath(room.getStorageTargets(RESOURCE_ENERGY, true));
       var roadArgs = {
         targetId: source.id,
         targetClass: 'source',
         structure: STRUCTURE_ROAD,
       };
-      switch (builtSources + sourceRoadProjects) {
+      var projectCount = (sourceRoadProjects) ? sourceRoadProjects.length : 0;
+      switch (builtSources + projectCount) {
         //high prio for # 1 & 2, lower for rest
         case 0:
           roadArgs.priority = 1000;
+          break;
         case 1:
           roadArgs.priority = 800;
+          break;
         default:
           roadArgs.priority = 500;
+          break;
       }
       var roadJob = queueLongStructure(source, target, roadArgs);
       projects.push(roadJob);
     }
 }
 
-function dispatchConstructOrders(team, targets, room, roster) {
-  console.log(team);
-  // team.forEach(creepId => {
-  //   Game.creeps[creepId].construct();
-  // });
-  // workforceLib.removeFromRoster(room, roster, team);
+function dispatchConstructOrders(team, room, roster, targets) {
+  if (Object.keys(Game.constructionSites).length === 0) {
+    startNewConstructionProject(room, targets);
+  }
+  var builderIndex = 0;
+  for (var siteKey in Game.constructionSites) {
+    var site = Game.constructionSites[siteKey];
+    var builder = Game.creeps[team[builderIndex]];
+    if (builder) {
+      if (builder.store.getUsedCapacity() > 0 &&
+        (builder.store.getFreeCapacity() === 0 || builder.memory.action === 'build')) {
+        // var enoughWork = site.checkIncomingWork();
+        // if (!enoughWork) {
+        var attempt = builder.construct(site);
+          // room.controller.incomingWork += creep.store.getUsedCapacity(RESOURCE_ENERGY);
+        // }
+        workforceLib.removeFromRoster(room, roster, [team[builderIndex]]);
+      }
+      builderIndex += 1;
+    } else {
+      break;
+    }
+  }
+}
+
+function startNewConstructionProject(room, targets) {
+  var startedTarget = targets.filter(target => {
+    return target.started;
+  });
+  if (startedTarget.length > 0) {
+    var target = startedTarget[0];
+  } else {
+    targets = targets.sort((a, b) => {
+      return a.priority < b.priority;
+    });
+    var target = targets[0];
+  }
+  target.sites.forEach(site => {
+    room.createConstructionSite(site.pos.x, site.pos.y, site.type);
+  });
+  target.started = true;
 }
 
 function dispatchFarmOrders(team, room, roster) {
@@ -141,7 +185,7 @@ function dispatchUpgradeOrders(team, room, roster, canHarvest) {
         creep.upgrade(room.controller, room.resources['energy']);
         room.controller.incomingWork += creep.store.getUsedCapacity(RESOURCE_ENERGY);
       }
-      workforceLib.removeFromRoster(room, roster, team);
+      workforceLib.removeFromRoster(room, roster, [creepId]);
     }
   });
 }
@@ -155,6 +199,7 @@ function queueLongStructure(start, end, structureArgs) {
     targetId: structureArgs.targetId,
     targetClass: structureArgs.targetClass,
     priority: structureArgs.priority,
+    started: false,
     sites: []
   };
   var jobPath = start.pos.findPathTo(end);

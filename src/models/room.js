@@ -55,44 +55,62 @@ function addMethods() {
     });
     return refuelTargets;
   };
-  Room.prototype.getRosterActionGroup = function(role, action) {
+  Room.prototype.getRosterActionGroup = function(role, action, getAction = true) {
     var actionGroup = this.workforce.roster[role].filter(creepKey => {
       var creep = Game.creeps[creepKey];
-      if (creep.memory.action === action) {
-        return true;
+      if (getAction === true) {
+        if (creep.memory.action === action) {
+          return true;
+        }
+      } else {
+        if (creep.memory.action !== action) {
+          return true;
+        }
       }
     });
     return actionGroup;
   };
-  Room.prototype.getStorageTargets = function(resource = RESOURCE_ENERGY) {
+  Room.prototype.getStorageTargets = function(resource = RESOURCE_ENERGY, ignoreCount = false) {
     var storageTargets = this.find(FIND_STRUCTURES, {
       filter: (structure) => {
-        return structure.canStoreResource(resource);
+        return structure.canStoreResource(resource, ignoreCount);
       }
     });
     return storageTargets;
   };
-  Room.prototype.reinforceRosterActionGroup = function(role, action, conscripts, count = 0) {
+  Room.prototype.reinforceRosterActionGroup = function(role, action, conscripts = [], count = 0) {
     //come up with better method of determining which farming builder should be assigned to which task
     var actionGroup = this.getRosterActionGroup(role, action);
     if (count === 0) count = 999;
     var creepDiff = count - actionGroup.length;
     if (creepDiff > 0) {
-      conscripts.forEach(conscriptAction => {
-        if (creepDiff > 0) {
-          var conscriptGroup = this.getRosterActionGroup(role, conscriptAction);
-          if (conscriptGroup) {
-            if (conscriptGroup.length > (creepDiff)) {
-              var conscripts = selectBestConscript(conscriptGroup, conscriptAction, creepDiff);
-              actionGroup = actionGroup.concat(conscripts);
-              return actionGroup;
-            } else {
-              actionGroup = actionGroup.concat(conscriptGroup);
-              creepDiff -= conscriptGroup;
+      if (conscripts.length === 0) {
+        var conscriptGroup = this.getRosterActionGroup(role, action, false);
+        if (conscriptGroup.length > (creepDiff)) {
+          conscripts = selectBestConscript(conscriptGroup, '', creepDiff);
+          actionGroup = actionGroup.concat(conscripts);
+          return actionGroup;
+        } else {
+          actionGroup = actionGroup.concat(conscriptGroup);
+          creepDiff -= conscriptGroup;
+        }
+      } else {
+        conscripts.forEach(conscriptAction => {
+          if (creepDiff > 0) {
+            var conscriptGroup = this.getRosterActionGroup(role, conscriptAction);
+            if (conscriptGroup) {
+              if (conscriptGroup.length > (creepDiff)) {
+                var conscripts = selectBestConscript(conscriptGroup, conscriptAction, creepDiff);
+                actionGroup = actionGroup.concat(conscripts);
+                return actionGroup;
+              } else {
+                actionGroup = actionGroup.concat(conscriptGroup);
+                creepDiff -= conscriptGroup;
+              }
             }
           }
-        }
-      });
+        });
+      }
     };
     return actionGroup;
   };
