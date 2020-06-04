@@ -1,6 +1,6 @@
-var lib = require('lib_lib');
-var workforceLib = require('lib_workforce_lib');
-var harvestController = require('controllers_harvest');
+var lib = require('lib.lib');
+var workforceLib = require('lib.workforce_lib');
+var harvestController = require('controllers.harvest');
 
 module.exports = {
   run: function() {

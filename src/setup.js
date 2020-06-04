@@ -1,11 +1,11 @@
-var lib = require('lib_lib');
-var creep = require('models_creep');
-var game = require('models_game');
-var room = require('models_room');
-var roomObject = require('models_roomObject');
-var source = require('models_source');
-var structure = require('models_structure');
-var structureSpawn = require('models_structureSpawn');
+var lib = require('lib.lib');
+var creep = require('models.creep');
+var game = require('models.game');
+var room = require('models.room');
+var roomObject = require('models.roomObject');
+var source = require('models.source');
+var structure = require('models.structure');
+var structureSpawn = require('models.structureSpawn');
 
 PathFinder.use(true);
 

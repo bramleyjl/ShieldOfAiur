@@ -1,5 +1,5 @@
-var lib = require('lib_lib');
-var creepLib = require('lib_creep_lib');
+var lib = require('lib.lib');
+var creepLib = require('lib.creep_lib');
 
 module.exports = {
   extendStructureSpawn: function() {

@@ -1,4 +1,4 @@
-var memoryLib = require('lib_memory_lib');
+var memoryLib = require('lib.memory_lib');
 
 module.exports = {
   extendRoom: function() {

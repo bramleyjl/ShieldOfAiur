@@ -1,4 +1,4 @@
-var lib = require('lib_lib');
+var lib = require('lib.lib');
 
 module.exports = {
   run: function() {
