@@ -1,4 +1,5 @@
 var config = require('config');
+var workforceLib = require('lib.workforce_lib');
 
 module.exports = {
   extendCreep: function() {
@@ -13,7 +14,18 @@ module.exports = {
 }
 
 function addMethods() {
-  Creep.prototype.collect = function (target) {
+  Creep.prototype.checkHP = function() {
+    if (this.getMissingHP() > 0) {
+    // if (1 === 1) {
+      var oldHP = this.memory.hp;
+      this.memory.needsRepair = true;
+      if (oldHP === undefined || oldHP > this.hits) {
+      // if (1 === 1) {
+        this.room.handleAttack(this);
+      }
+    }
+  };
+  Creep.prototype.collect = function(target) {
     var attempt = this.goDo(target, 'pickup', 'transportCollect');
     return attempt;
   };
@@ -21,7 +33,7 @@ function addMethods() {
     var attempt = this.goDo(target, 'build', 'build');
     return attempt;
   };
-  Creep.prototype.deposit = function (target, resource) {
+  Creep.prototype.deposit = function(target, resource) {
     var attempt = this.goDo(target, 'transfer', 'transportDeposit', { 
       actionArgs: {resource: resource}, 
       path: 'returnPath',
@@ -42,7 +54,10 @@ function addMethods() {
     var attempt = this.goDo(target, 'harvest', 'harvest');
     return attempt;
   };
-  Creep.prototype.goDo = function(target, command, action, args = { path: 'movePath' }) {
+  Creep.prototype.getMissingHP = function() {
+    return this.hitsMax - this.hits;
+  }
+  Creep.prototype.goDo = function(target, command = 'move', action, args = { path: 'movePath' }) {
       if (!target) {
         console.log(`ERROR: Null target for creep ${this.name} attempting ${command}: ${action}`);
         return;
@@ -66,8 +81,9 @@ function addMethods() {
         case 'withdraw':
           var attempt = this.withdraw(target, args.actionArgs.resource);
           break;
+        case 'move':
         default:
-          var attempt = ERR_NOT_IN_RANGE;
+          var attempt = this.moveTo(target, {visualizePathStyle: {stroke: config.styling[args.path].stroke}});
           break;
       }
       target.freeSpaces = target.freeSpaces - 1;
@@ -95,6 +111,14 @@ function addMethods() {
       this.memory.action = 'waitRefuel';
     }
     return attempt;
+  };
+  Creep.prototype.retreat = function(target = undefined) {
+    if (target === undefined) {
+      var spawn = this.room.memory.spawn;
+      target = Game.spawns[spawn];
+    }
+    var attempt = this.goDo(target);
+    workforceLib.removeFromRoster(this.room, this.memory.role, [this.name]);
   };
   Creep.prototype.shouldDeposit = function(resource) {
     return (this.store.getFreeCapacity(resource) === 0 || this.memory.action === 'forceDeposit') ? true : false;

@@ -33,7 +33,6 @@ function calculatePriorities(room, roomLevel) {
         //level 2 condition not yet defined, focus on construction first
         if (1 === 2) {
           var upgradeTeam = room.reinforceRosterActionGroup('builder', 'upgrade', ['transportDeposit', 'forceDeposit'], 2);
-          console.log('UPGRADE ' + upgradeTeam)
           dispatchUpgradeOrders(upgradeTeam, room, 'builder', canHarvest);
         }
         var constructionTeam = room.reinforceRosterActionGroup('builder', 'build', ['transportDeposit', 'forceDeposit']);
@@ -58,7 +57,7 @@ function calculatePriorities(room, roomLevel) {
 function calculateConstructionTargets(room, roomLevel, update = false) {
     var projects = (update) ? room.memory.projects : [];
     calculateRoadTargets(room, projects, update);
-    //calculateWallTargets(start, end);
+    // calculateWallTargets(start, end);
     room.memory.projects = projects;
     return projects;
 }
@@ -129,11 +128,12 @@ function dispatchConstructOrders(team, room, roster, targets) {
     if (builder) {
       if (builder.store.getUsedCapacity() > 0 &&
         (builder.store.getFreeCapacity() === 0 || builder.memory.action === 'build')) {
-        // var enoughWork = site.checkIncomingWork();
-        // if (!enoughWork) {
+        var enoughWork = site.checkIncomingWork();
+        if (!enoughWork) {
+        //add else condition to go check next construction site instead of doing nothing
         var attempt = builder.construct(site);
-          // room.controller.incomingWork += creep.store.getUsedCapacity(RESOURCE_ENERGY);
-        // }
+          room.controller.incomingWork += creep.store.getUsedCapacity(RESOURCE_ENERGY);
+        }
         workforceLib.removeFromRoster(room, roster, [team[builderIndex]]);
       }
       builderIndex += 1;

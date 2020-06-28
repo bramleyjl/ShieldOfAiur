@@ -49,6 +49,16 @@ function buildRoom() {
         actionCount: {},
         creepCount: 0
     };
+    buildWorkforce(room);
+    room.controller.incomingWork = 0;
+    room.controller.workRemaining = room.controller.progressTotal - room.controller.progress;
+    //initial room memory structure setup, only runs once
+    if (!room.memory.memorySetup) {
+      room.buildMemory();
+    }
+}
+
+function buildWorkforce(room) {
     let creepCount = 0;
     for (var creepKey in Game.creeps) {
       var creep = Game.creeps[creepKey];
@@ -60,20 +70,16 @@ function buildRoom() {
         room.workforce.roster[role].push(creepKey);        
       }
       var action = creep.memory.action;
-      if (room.workforce.actionCount[action]) {
-        room.workforce.actionCount[action] += 1;
-      } else {
-        room.workforce.actionCount[action] = 1;
+      if (action) {
+        if (room.workforce.actionCount[action]) {
+          room.workforce.actionCount[action] += 1;
+        } else {
+          room.workforce.actionCount[action] = 1;
+        }
       }
+      creep.checkHP();
       creepCount += 1;
     }
     room.workforce.energyTeamCount = room.workforce.roster.harvester.length + room.workforce.roster.transporter.length;
     room.workforce.creepCount = creepCount;
-    //set controller upgrade deficit and incoming work
-    room.controller.incomingWork = 0;
-    room.controller.workRemaining = room.controller.progressTotal - room.controller.progress;
-    //initial room memory structure setup, only runs once
-    if (!room.memory.memorySetup) {
-      room.buildMemory();
-    }
 }

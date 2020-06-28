@@ -19,15 +19,21 @@ module.exports = {
 }
 
 function addMethods() {
-  Room.prototype.buildMemory = function(){
-    this.memory['sources'] = [];
+  Room.prototype.buildMemory = function() {
+    //build sources memory
+    this.memory['sources'] = {};
     var sources = memoryLib.transformToIds(this.resources.energy);
     sources.forEach(source => {
-      this.memory['sources'][source] = {
-        developed: false
+      var sourceInfo = {
+        developed: false,
+        safe: true
       };
+      this.memory.sources[source] = sourceInfo;
     });
-    this.memory['sources']['developedCount'] = 0;
+    this.memory['developedSources'] = 0;
+    this.memory['memorySetup'] = true;
+    //add spawn to memory
+    this.memory.spawn = this.getRoomSpawn();
   };
   Room.prototype.buildResources = function() {
     this.resources = {
@@ -55,6 +61,12 @@ function addMethods() {
     });
     return refuelTargets;
   };
+  Room.prototype.getRoomSpawn = function() {
+    for (var spawn in Game.spawns) {
+      var room = Game.spawns[spawn].room;
+      if (room === this) return spawn;
+    };
+  };
   Room.prototype.getRosterActionGroup = function(role, action, getAction = true) {
     var actionGroup = this.workforce.roster[role].filter(creepKey => {
       var creep = Game.creeps[creepKey];
@@ -77,6 +89,19 @@ function addMethods() {
       }
     });
     return storageTargets;
+  };
+  Room.prototype.handleAttack = function(objUnderAttack) {
+    var structureType = objUnderAttack.structureType;
+    if (structureType === undefined) {
+      var target = objUnderAttack.getMemoryObject('target');
+      if (target && objUnderAttack.memory.action === 'harvest') {
+        var sourceMemory = this.memory.sources[target.id];
+        sourceMemory.safe = false;
+      }
+      objUnderAttack.retreat();
+    } else {
+      //structure defense logic here
+    }
   };
   Room.prototype.reinforceRosterActionGroup = function(role, action, conscripts = [], count = 0) {
     //come up with better method of determining which farming builder should be assigned to which task

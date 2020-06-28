@@ -40,8 +40,8 @@ module.exports = {
 
 function addMethods() {
   RoomObject.prototype.getMemoryObject = function(field) {
-    if (this.memory.field) {
-      return Game.getObjectById(this.memory.field);
+    if (this.memory[field]) {
+      return Game.getObjectById(this.memory[field]);
     }
   }
   RoomObject.prototype.checkIncomingWork = function() {
