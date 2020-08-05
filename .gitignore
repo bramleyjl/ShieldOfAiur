@@ -5,3 +5,4 @@
 /node_modules/
 /jpscreepsinit.sh
 /.DS_Store
+/.package-lock.json

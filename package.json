@@ -2,7 +2,7 @@
   "name": "screeps",
   "version": "0.1.0",
   "devDependencies": {
-    "screep-remote": "^1.0.0"
+    "screeps-remote": "^1.0.1"
   },
   "scripts": {
     "remote": "node remote.js"
