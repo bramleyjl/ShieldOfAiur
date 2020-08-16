@@ -20,20 +20,18 @@ module.exports = {
 
 function addMethods() {
   Room.prototype.buildMemory = function() {
-    //build sources memory
-    this.memory['sources'] = {};
+    this.memory.sources = {};
     var sources = memoryLib.transformToIds(this.resources.energy);
+    const sourceMemory = {
+      developed: false,
+      safe: true
+    };
     sources.forEach(source => {
-      var sourceInfo = {
-        developed: false,
-        safe: true
-      };
-      this.memory.sources[source] = sourceInfo;
+      this.memory.sources[source] = sourceMemory;
     });
     this.memory['developedSources'] = 0;
-    this.memory['memorySetup'] = true;
-    //add spawn to memory
     this.memory.spawn = this.getRoomSpawn();
+    this.memory['memorySetup'] = true;
   };
   Room.prototype.buildResources = function() {
     this.resources = {
@@ -94,13 +92,20 @@ function addMethods() {
     var structureType = objUnderAttack.structureType;
     if (structureType === undefined) {
       var target = objUnderAttack.getMemoryObject('target');
-      if (target && objUnderAttack.memory.action === 'harvest') {
-        var sourceMemory = this.memory.sources[target.id];
-        sourceMemory.safe = false;
+      if (target) {
+        this.markTargetUnsafe(target, objUnderAttack);
       }
       objUnderAttack.retreat();
     } else {
       //structure defense logic here
+    }
+  };
+  Room.prototype.markTargetUnsafe = function (target, creep) {
+    if (creep.memory.action === 'harvest') {
+      var sourceMemory = this.memory.sources[target.id];
+      sourceMemory.safe = false;
+      var safeTime = Game.time + 180;
+      memoryLib.addToDo('source', target.id, 'markSafe', safeTime);
     }
   };
   Room.prototype.reinforceRosterActionGroup = function(role, action, conscripts = [], count = 0) {

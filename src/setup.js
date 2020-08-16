@@ -1,4 +1,5 @@
 var lib = require('lib.lib');
+var memoryLib = require('lib.memory_lib');
 var creep = require('models.creep');
 var game = require('models.game');
 var room = require('models.room');
@@ -13,6 +14,7 @@ var setup = {
   runConstructors: function() {
     extendClasses();
     buildRoom();
+    checkToDo();
   }
 }
 
@@ -56,6 +58,17 @@ function buildRoom() {
     if (!room.memory.memorySetup) {
       room.buildMemory();
     }
+}
+
+function checkToDo() {
+  if (!Memory.toDo) {
+    Memory.toDo = {};
+  }
+  var now = Game.time;
+  var toDoList = Memory.toDo[now];
+  if (toDoList) {
+    memoryLib.handleToDoList(now, toDoList);
+  }
 }
 
 function buildWorkforce(room) {

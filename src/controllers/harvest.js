@@ -14,7 +14,8 @@ module.exports = {
       if (!target) {
         var target = creep.pos.findClosestByPath(resourceNodes, {
           filter: (source) => {
-            return source.freeSpaces > 0;
+            return (source.freeSpaces > 0 &&
+                    (room.memory.sources[source.id].safe === true));
           }
         });
       }

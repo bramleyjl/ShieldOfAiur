@@ -17,8 +17,8 @@ function addMethods() {
   Creep.prototype.checkHP = function() {
     if (this.getMissingHP() > 0) {
     // if (1 === 1) {
-      var oldHP = this.memory.hp;
       this.memory.needsRepair = true;
+      var oldHP = this.memory.hp;
       if (oldHP === undefined || oldHP > this.hits) {
       // if (1 === 1) {
         this.room.handleAttack(this);
