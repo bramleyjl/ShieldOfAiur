@@ -14,7 +14,7 @@ var setup = {
   runConstructors: function() {
     extendClasses();
     buildRoom();
-    checkToDo();
+    checkTimeQueue();
   }
 }
 
@@ -60,14 +60,14 @@ function buildRoom() {
     }
 }
 
-function checkToDo() {
-  if (!Memory.toDo) {
-    Memory.toDo = {};
+function checkTimeQueue() {
+  if (!Memory.timeQueue) {
+    Memory.timeQueue = {};
   }
   var now = Game.time;
-  var toDoList = Memory.toDo[now];
-  if (toDoList) {
-    memoryLib.handleToDoList(now, toDoList);
+  var timeQueueList = Memory.timeQueue[now];
+  if (timeQueueList) {
+    memoryLib.handleTimeQueueList(now, timeQueueList);
   }
 }
 

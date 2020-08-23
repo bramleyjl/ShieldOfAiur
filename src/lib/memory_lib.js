@@ -1,11 +1,11 @@
 module.exports = {
-  addToDo: function(targetClass, targetId, action, time) {
-    var timeToDo = (Memory.toDo[time]) ? Memory.toDo[time] : {};
-    timeToDo[targetId] = {
+  addTimeQueueTask: function(targetClass, targetId, action, time) {
+    var list = (Memory.timeQueue[time]) ? Memory.timeQueue[time] : {};
+    list[targetId] = {
       class: targetClass,
       action: action
     };
-    Memory.toDo[time] = timeToDo;
+    Memory.timeQueue[time] = list;
   },
   getMemoryFieldClass: function(field) {
     const fieldMap = {
@@ -13,7 +13,7 @@ module.exports = {
     };
     return fieldMap[field]
   },
-  handleToDoList: function(time, list) {
+  handleTimeQueueList: function(time, list) {
     Object.keys(list).forEach(key => {
       var targetClass = list[key].class;
       var action = list[key].action;
@@ -29,7 +29,7 @@ module.exports = {
           break;
       }
     });
-    delete Memory.toDo[time];
+    delete Memory.timeQueue[time];
   },
   transformToId: function(obj) {
     return obj.id;

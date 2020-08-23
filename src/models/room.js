@@ -105,7 +105,7 @@ function addMethods() {
       var sourceMemory = this.memory.sources[target.id];
       sourceMemory.safe = false;
       var safeTime = Game.time + 180;
-      memoryLib.addToDo('source', target.id, 'markSafe', safeTime);
+      memoryLib.addTimeQueueTask('source', target.id, 'markSafe', safeTime);
     }
   };
   Room.prototype.reinforceRosterActionGroup = function(role, action, conscripts = [], count = 0) {

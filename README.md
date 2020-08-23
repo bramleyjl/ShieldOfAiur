@@ -17,4 +17,4 @@ Screeps functions by running `main.js` in the root directory [each 'tick' of gam
 
 ### How do I install Shield of Aiur?
 
-Shield of Aiur is developed using [screeps-remote](https://www.npmjs.com/package/screeps-remote). After cloning the project and running `npm install` to install screeps-remote, follow the linked instructions to configure it to your Screeps installation. From that point on you can update your local Screeps build in real time by changing the linked files in the code editor of your choice.
+Shield of Aiur is developed using [screeps-remote](https://www.npmjs.com/package/screeps-remote). After cloning the project and running `npm install` to install screeps-remote, follow the linked instructions to configure it to your Screeps installation. When starting to play run `npm run remote` to start the remote package; from that point on you can update your local Screeps build in real time by changing the linked files in the code editor of your choice.
