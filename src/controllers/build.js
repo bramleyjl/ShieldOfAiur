@@ -169,7 +169,7 @@ function dispatchFarmOrders(team, room, roster) {
   });
   var harvesters = team.filter(creepId => {
     return depositors.indexOf(creepId) < 0;
-  })
+  });
   harvestController.dispatchHarvestOrders(harvesters, room, 'builder');
   harvestController.dispatchTransportOrders(depositors, room, 'builder');
 }

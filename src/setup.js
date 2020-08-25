@@ -90,7 +90,7 @@ function buildWorkforce(room) {
           room.workforce.actionCount[action] = 1;
         }
       }
-      creep.checkHP();
+      creep.checkStatus();
       creepCount += 1;
     }
     room.workforce.energyTeamCount = room.workforce.roster.harvester.length + room.workforce.roster.transporter.length;

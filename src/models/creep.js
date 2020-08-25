@@ -14,15 +14,16 @@ module.exports = {
 }
 
 function addMethods() {
-  Creep.prototype.checkHP = function() {
+  Creep.prototype.checkStatus = function() {
     if (this.getMissingHP() > 0) {
-    // if (1 === 1) {
       this.memory.needsRepair = true;
       var oldHP = this.memory.hp;
       if (oldHP === undefined || oldHP > this.hits) {
-      // if (1 === 1) {
         this.room.handleAttack(this);
+      } else if (this.memory.action === 'retreat') {
+        this.retreat(this.getMemoryObject('target'));
       }
+      this.memory.hp = this.hits;
     }
   };
   Creep.prototype.collect = function(target) {
@@ -88,7 +89,7 @@ function addMethods() {
       }
       target.freeSpaces = target.freeSpaces - 1;
       this.memory.action = action;
-      if (attempt === ERR_NOT_IN_RANGE) {
+      if (attempt === ERR_NOT_IN_RANGE || args['preserveTarget'] === true) {
         this.moveTo(target, {visualizePathStyle: {stroke: config.styling[args.path].stroke}});
         this.memory.target = target.id;
       } else if (attempt === OK && !args['preserveTarget']) {
@@ -117,8 +118,13 @@ function addMethods() {
       var spawn = this.room.memory.spawn;
       target = Game.spawns[spawn];
     }
-    var attempt = this.goDo(target);
-    workforceLib.removeFromRoster(this.room, this.memory.role, [this.name]);
+    if (this.pos.getRangeTo(target) > 1) {
+      var attempt = this.goDo(target, 'move', 'retreat', {path: 'returnPath', preserveTarget: true});
+      workforceLib.removeFromRoster(this.room, this.memory.role, [this.name]);
+    } else {
+      this.memory.action = '';
+      this.memory.target = undefined;
+    }
   };
   Creep.prototype.shouldDeposit = function(resource) {
     return (this.store.getFreeCapacity(resource) === 0 || this.memory.action === 'forceDeposit') ? true : false;

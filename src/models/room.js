@@ -42,6 +42,10 @@ function addMethods() {
     };
     this.resources.energy.forEach(source => {
       this.resources.totalHarvestSpaces += source.freeSpaces;
+      let sourceId = memoryLib.transformToId(source);
+      if (this.memory.sources && this.memory.sources[sourceId]) {
+        memoryLib.checkObjectSafe(this.memory.sources[sourceId]);
+      }
     });
   };
   Room.prototype.getOpenHarvestSpaces = function() {
@@ -105,7 +109,7 @@ function addMethods() {
       var sourceMemory = this.memory.sources[target.id];
       sourceMemory.safe = false;
       var safeTime = Game.time + 180;
-      memoryLib.addTimeQueueTask('source', target.id, 'markSafe', safeTime);
+      sourceMemory.safeCheck = safeTime;
     }
   };
   Room.prototype.reinforceRosterActionGroup = function(role, action, conscripts = [], count = 0) {

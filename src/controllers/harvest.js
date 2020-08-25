@@ -11,7 +11,7 @@ module.exports = {
     team.forEach(creepId => {
       var creep = Game.creeps[creepId];
       var target = creep.getMemoryObject('target');
-      if (!target) {
+      if (!target || target === undefined) {
         var target = creep.pos.findClosestByPath(resourceNodes, {
           filter: (source) => {
             return (source.freeSpaces > 0 &&
