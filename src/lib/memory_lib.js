@@ -7,32 +7,32 @@ module.exports = {
   //   };
   //   Memory.timeQueue[time] = list;
   // },
-  checkObjectSafe: function(objMemory) {
+  checkObjectSafe: function (objMemory) {
     if (objMemory.safe === false && objMemory.safeCheck === Game.time) {
       objMemory.safe = true;
-      objMemory.safeCheck = '';
+      objMemory.safeCheck = "";
     }
   },
-  getMemoryFieldClass: function(field) {
+  getMemoryFieldClass: function (field) {
     const fieldMap = {
-      target: 'RoomObject',
+      target: "RoomObject",
     };
-    return fieldMap[field]
+    return fieldMap[field];
   },
-  handleTimeQueueList: function(time, list) {
-    Object.keys(list).forEach(key => {
+  handleTimeQueueList: function (time, list) {
+    Object.keys(list).forEach((key) => {
       handleTimeQueueListItem(key, list[key]);
     });
     delete Memory.timeQueue[time];
   },
-  transformToId: function(obj) {
+  transformToId: function (obj) {
     return obj.id;
   },
-  transformToIds: function(objs) {
-    return objs.map(obj => {
+  transformToIds: function (objs) {
+    return objs.map((obj) => {
       return obj.id;
     });
-  }
-}
+  },
+};
 
 //function handleTimeQueueListItem(id, listItem) {}

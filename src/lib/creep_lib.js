@@ -1,24 +1,24 @@
 module.exports = {
-  getCreepRoleParts: function(role) {
+  getCreepRoleParts: function (role) {
     var parts = [];
     switch (role) {
-      case 'builder':
+      case "builder":
         parts = [WORK, CARRY, CARRY, MOVE, MOVE];
         break;
-      case 'harvester':
+      case "harvester":
         parts = [WORK, WORK, MOVE];
         break;
-      case 'transporter':
+      case "transporter":
         parts = [CARRY, CARRY, CARRY, MOVE, MOVE];
         break;
-      case 'claimer':
+      case "claimer":
         parts = [CLAIM, CARRY, WORK, MOVE];
         break;
-      case 'basic':
+      case "basic":
       default:
         parts = [WORK, CARRY, MOVE];
         break;
     }
     return parts;
   },
-}
+};

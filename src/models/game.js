@@ -1,5 +1,3 @@
 module.exports = {
-  extendGame: function() {
-
-  }
-}
+  extendGame: function () {},
+};

@@ -1,8 +1,7 @@
-var lib = require('lib.lib');
+var lib = require("lib.lib");
 
 module.exports = {
-  run: function() {
+  run: function () {
     var currentRoom = lib.getCurrentRoom();
-
-  }
-}
+  },
+};

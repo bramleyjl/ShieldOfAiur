@@ -2,9 +2,17 @@
   "name": "screeps",
   "version": "0.1.0",
   "devDependencies": {
+    "husky": "^4.2.5",
+    "prettier": "^2.1.1",
+    "pretty-quick": "^3.0.0",
     "screeps-remote": "^1.0.1"
   },
   "scripts": {
     "remote": "node remote.js"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
   }
 }

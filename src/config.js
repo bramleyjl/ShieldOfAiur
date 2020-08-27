@@ -1,12 +1,12 @@
 const config = {
-  'styling': {
-    'movePath': {
-      'stroke': '#ffaa00', 
+  styling: {
+    movePath: {
+      stroke: "#ffaa00",
     },
-    'returnPath': {
-      'stroke': '#ffffff',
-    }
-  }
+    returnPath: {
+      stroke: "#ffffff",
+    },
+  },
 };
 
-module.exports = config; 
+module.exports = config;
