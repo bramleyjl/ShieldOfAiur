@@ -1,5 +1,6 @@
 var lib = require("lib.lib");
 var memoryLib = require("lib.memory_lib");
+var constructionSite = require("models.constructionSite");
 var creep = require("models.creep");
 var game = require("models.game");
 var room = require("models.room");
@@ -24,6 +25,7 @@ function extendClasses() {
   game.extendGame();
   room.extendRoom();
   roomObject.extendRoomObject();
+  constructionSite.extendConstructionSite();
   creep.extendCreep();
   source.extendSource();
   structure.extendStructure();

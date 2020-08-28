@@ -195,6 +195,12 @@ function startNewConstructionProject(room, targets) {
   }
   target.sites.forEach((site) => {
     room.createConstructionSite(site.pos.x, site.pos.y, site.type);
+    var constructionSite = room.lookForAt(
+      LOOK_CONSTRUCTION_SITES,
+      site.pos.x,
+      site.pos.y
+    );
+    console.log(constructionSite);
   });
   target.started = true;
 }
