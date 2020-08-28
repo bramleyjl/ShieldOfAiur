@@ -37,6 +37,7 @@ function addMethods() {
     sources.forEach((source) => {
       this.memory.sources[source] = sourceMemory;
     });
+    this.memory["creepRepair"] = [];
     this.memory["developedSources"] = 0;
     this.memory.spawn = this.getRoomSpawn();
     this.memory["memorySetup"] = true;

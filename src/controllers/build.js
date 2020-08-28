@@ -21,6 +21,7 @@ function calculatePriorities(room, roomLevel) {
       true
     );
   }
+  var repairTargets = calculateRepairTargets(room, roomLevel);
   var openHarvestSpaces = room.getOpenHarvestSpaces();
   var canHarvest = openHarvestSpaces > 0 ? true : false;
   switch (roomLevel) {
@@ -89,6 +90,8 @@ function calculateConstructionTargets(room, roomLevel, update = false) {
   room.memory.projects = projects;
   return projects;
 }
+
+function calculateRepairTargets(room, roomLevel) {}
 
 function calculateRoadTargets(room, projects, update) {
   //calculate which sources are getting farmed and build roads to them
@@ -165,7 +168,7 @@ function dispatchConstructOrders(team, room, roster, targets) {
         if (!enoughWork) {
           //add else condition to go check next construction site instead of doing nothing
           var attempt = builder.construct(site);
-          room.controller.incomingWork += creep.store.getUsedCapacity(
+          room.controller.incomingWork += builder.store.getUsedCapacity(
             RESOURCE_ENERGY
           );
         }

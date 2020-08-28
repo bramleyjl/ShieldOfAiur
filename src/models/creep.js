@@ -13,19 +13,48 @@ module.exports = {
       enumerable: false,
       configurable: true,
     });
+    Object.defineProperty(Creep.prototype, "lifeLeft", {
+      get: function () {
+        return Math.round((this.ticksToLive * 100) / 1500);
+      },
+      enumerable: false,
+      configurable: true,
+    });
+    Object.defineProperty(Creep.prototype, "missingHP", {
+      get: function () {
+        return this.hitsMax - this.hits;
+      },
+      enumerable: false,
+      configurable: true,
+    });
+    Object.defineProperty(Creep.prototype, "percentHP", {
+      get: function () {
+        return Math.round((this.hits * 100) / this.hitsMax);
+      },
+      enumerable: false,
+      configurable: true,
+    });
     addMethods();
   },
 };
 
 function addMethods() {
   Creep.prototype.checkStatus = function () {
-    if (this.getMissingHP() > 0) {
-      this.memory.needsRepair = true;
+    if (this.missingHP > 0) {
       var oldHP = this.memory.hp;
       if (oldHP === undefined || oldHP > this.hits) {
         this.room.handleAttack(this);
-      } else if (this.memory.action === "retreat") {
-        this.retreat(this.getMemoryObject("target"));
+      } else {
+        if (this.memory.action === "retreat") {
+          this.retreat(this.getMemoryObject("target"));
+        }
+        if (
+          this.room.memory.creepRepair.indexOf(creep.id) < 0 &&
+          this.shouldRepair()
+        ) {
+          this.memory.needsRepair = true;
+          this.room.memory.creepRepair.push(creep.id);
+        }
       }
       this.memory.hp = this.hits;
     }
@@ -61,9 +90,6 @@ function addMethods() {
   Creep.prototype.farm = function (target) {
     var attempt = this.goDo(target, "harvest", "harvest");
     return attempt;
-  };
-  Creep.prototype.getMissingHP = function () {
-    return this.hitsMax - this.hits;
   };
   Creep.prototype.goDo = function (
     target,
@@ -114,6 +140,15 @@ function addMethods() {
       this.memory.target = undefined;
     }
     return attempt;
+  };
+  Creep.prototype.shouldRepair = function () {
+    if (this.memory.needsRepair === true) {
+      return true;
+    } else {
+      if (this.percentHP > 90) return false;
+      if (this.lifeLeft < 50 && this.percentHP > 50) return false;
+      return true;
+    }
   };
   Creep.prototype.refuel = function (target, resource) {
     var attempt = this.goDo(target, "withdraw", "refuel", {
