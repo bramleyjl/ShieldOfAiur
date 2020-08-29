@@ -155,8 +155,21 @@ function dispatchConstructOrders(team, room, roster, targets) {
     startNewConstructionProject(room, targets);
   }
   var builderIndex = 0;
+  var sortedSites = [];
   for (var siteKey in Game.constructionSites) {
     var site = Game.constructionSites[siteKey];
+    if (site.manual === false) {
+      sortedSites.push(siteKey);
+    } else {
+      sortedSites.unshift(siteKey);
+    }
+  }
+  for (var i = 0; i < sortedSites.length; i++) {
+    var site = Game.constructionSites[sortedSites[i]];
+    if (i === 0) {
+      console.log(site);
+      console.log(site.manual);
+    }
     var builder = Game.creeps[team[builderIndex]];
     if (builder) {
       if (
@@ -196,11 +209,14 @@ function startNewConstructionProject(room, targets) {
   target.sites.forEach((site) => {
     room.createConstructionSite(site.pos.x, site.pos.y, site.type);
     var constructionSite = room.lookForAt(
-      LOOK_CONSTRUCTION_SITES,
+      "constructionSite",
       site.pos.x,
       site.pos.y
     );
-    console.log(constructionSite);
+    var siteId = constructionSite.id;
+    if (Game.constructionSites[siteId]) {
+      Game.constructionSites[siteId].manual = false;
+    }
   });
   target.started = true;
 }

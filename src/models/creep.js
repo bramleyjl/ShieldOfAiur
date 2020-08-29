@@ -48,13 +48,12 @@ function addMethods() {
         if (this.memory.action === "retreat") {
           this.retreat(this.getMemoryObject("target"));
         }
-        console.log(this.room.memory.creepHeal);
         if (
-          this.room.memory.creepHeal.indexOf(creep.id) < 0 &&
+          this.room.memory.creepHeal.indexOf(this.id) < 0 &&
           this.shouldRepair()
         ) {
           this.memory.needsRepair = true;
-          this.room.memory.creepHeal.push(creep.id);
+          this.room.memory.creepHeal.push(this.id);
         }
       }
       this.memory.hp = this.hits;

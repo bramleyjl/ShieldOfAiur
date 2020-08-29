@@ -57,7 +57,10 @@ module.exports = {
           }
         } else {
           //collect dropped energy
-          if (!target) {
+          if (
+            !target ||
+            (target.structureType && target.structureType === "spawn")
+          ) {
             target = creep.pos.findClosestByPath(room.resources["dropped"]);
           }
           if (target) {
